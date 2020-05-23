@@ -126,7 +126,7 @@ export default class Default extends Vue {
 
   onSearch() {
     this.$router.push({
-      path: '/',
+      path: '/blog',
       query: { q: this.q }
     })
   }

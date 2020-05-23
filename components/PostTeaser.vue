@@ -30,8 +30,7 @@ export default class PostTeaser extends Vue {
 
     if (h.date) {
       const d = new Date(h.date)
-      return `/post/${d.getFullYear().toString()}/${d
-        .getMonth()
+      return `/post/${d.getFullYear().toString()}/${(d.getMonth() + 1)
         .toString()
         .padStart(2, '0')}/${h.slug}`
     }
