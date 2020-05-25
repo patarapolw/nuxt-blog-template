@@ -75,11 +75,13 @@ export default class Default extends Vue {
           name: t,
           class: (() => {
             const count = tagList[t]
-            if (count > 20) {
-              return 'c20'
-            } else if (count > 10) {
-              return 'c10'
-            } else if (count > 5) {
+            // if (count > 20) {
+            //   return 'c20'
+            // } else
+            // if (count > 10) {
+            //   return 'c10'
+            // } else
+            if (count > 5) {
               return 'c5'
             } else if (count > 3) {
               return 'c3'
