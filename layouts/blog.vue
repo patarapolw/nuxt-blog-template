@@ -68,7 +68,7 @@ export default class Default extends Vue {
       })
       .slice(0, 30)
       .map((t) => {
-        if (t === 'pinned') {
+        if (['pinned', 'dev.to'].includes(t)) {
           return null
         }
         return {
