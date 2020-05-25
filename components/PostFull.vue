@@ -14,27 +14,52 @@ section
             a(:href="$router.resolve('/tag/' + t).href") {{t}}
     .card(style="margin-top: 1em; margin-bottom: 1em;")
       .card-content
-        vue-disqus(v-if="disqus" :shortname="disqus" :identifier="$route.path")
+        #remark42
 </template>
 
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'nuxt-property-decorator'
 
 import { highlightBlock } from '../assets/hljs'
+import { initRemark42 } from '../assets/remark42'
 import PostHeader from './PostHeader.vue'
 
 @Component({
   components: {
     PostHeader
+  },
+  beforeRouteLeave() {
+    if (process.client) {
+      const { REMARK42 } = window as any
+      if (REMARK42) {
+        REMARK42.destroy()
+      }
+    }
   }
 })
 export default class PostFull extends Vue {
   @Prop({ required: true }) post!: any
 
-  disqus = 'patarapolw-blog'
+  get pageUrl() {
+    return process.env.baseUrl + this.$route.path
+  }
 
   mounted() {
     this.updatePost()
+    this.onRouteChange()
+  }
+
+  @Watch('$route.path')
+  onRouteChange() {
+    if (process.client) {
+      // eslint-disable-next-line camelcase
+      const { REMARK42 } = window as any
+      if (REMARK42) {
+        REMARK42.destroy()
+      }
+
+      initRemark42(location.origin + location.pathname)
+    }
   }
 
   @Watch('content')

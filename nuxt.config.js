@@ -37,7 +37,7 @@ export default {
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: ['~/plugins/disqus', '~/plugins/fontawesome'],
+  plugins: ['~/plugins/fontawesome.js'],
   /*
    ** Nuxt.js dev-modules
    */
@@ -85,6 +85,7 @@ export default {
     // extend(config, ctx) {}
   },
   env: {
-    title: "polv's homepage"
+    title: "polv's homepage",
+    baseUrl: 'https://polv.cc'
   }
 }
