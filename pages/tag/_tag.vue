@@ -1,12 +1,11 @@
 <template lang="pug">
-PostQuery(:defaults="defaults")
+PostQuery
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator'
 
 import PostQuery from '@/components/PostQuery.vue'
-import { api } from '@/assets/util'
 
 @Component({
   components: {
@@ -14,39 +13,5 @@ import { api } from '@/assets/util'
   },
   layout: 'blog'
 })
-export default class Tag extends Vue {
-  async asyncData({ params }: any) {
-    const ps = (
-      await api.post('/api/post/', {
-        cond: {
-          category: 'blog',
-          tag: params.tag
-        },
-        offset: 0,
-        limit: 5,
-        hasCount: true,
-        sort: {
-          key: 'date',
-          desc: true
-        },
-        projection: {
-          slug: 1,
-          title: 1,
-          tag: 1,
-          header: 1,
-          excerpt: 1,
-          remaing: 1,
-          date: 1
-        }
-      })
-    ).data
-
-    return {
-      defaults: {
-        posts: ps.data,
-        count: ps.count
-      }
-    }
-  }
-}
+export default class Tag extends Vue {}
 </script>

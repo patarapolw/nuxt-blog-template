@@ -14,7 +14,7 @@ section
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'nuxt-property-decorator'
+import { Vue, Component, Watch } from 'nuxt-property-decorator'
 
 import PostTeaser from './PostTeaser.vue'
 import Empty from './Empty.vue'
@@ -27,13 +27,8 @@ import { normalizeArray, api } from '@/assets/util'
   }
 })
 export default class PostQuery extends Vue {
-  @Prop({ required: true }) defaults!: {
-    count: number
-    posts: any[]
-  }
-
-  count = this.defaults.count
-  posts: any[] = this.defaults.posts
+  count = 0
+  posts: any[] | null = null
 
   get q() {
     return normalizeArray(this.$route.query.q) || ''
@@ -62,10 +57,8 @@ export default class PostQuery extends Vue {
     return this.$route.params.tag
   }
 
-  mounted() {
-    if (this.q) {
-      this.updatePosts()
-    }
+  created() {
+    this.updatePosts()
   }
 
   @Watch('page')

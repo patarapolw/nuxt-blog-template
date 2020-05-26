@@ -1,0 +1,17 @@
+# Ignore everything
+**
+
+# Allow files and directories
+!/app/**
+!/assets/**
+!/components/**
+!/layouts/**
+!/middleware/**
+!/pages/**
+!/plugins/**
+!/static/**
+!/store/**
+!nuxt.config.js
+!package-lock.json
+!package.json
+!tsconfig.
