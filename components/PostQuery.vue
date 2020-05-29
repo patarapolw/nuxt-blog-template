@@ -58,7 +58,6 @@ export default class PostQuery extends Vue {
   }
 
   @Watch('page')
-  @Watch('q')
   @Watch('tag')
   async updatePosts() {
     if (this.q) {
@@ -94,6 +93,12 @@ export default class PostQuery extends Vue {
       this.count = this.defaults.count
       this.$set(this, 'posts', this.defaults.posts)
     }
+  }
+
+  @Watch('q')
+  async onQChanged() {
+    await this.updatePosts()
+    this.page = 1
   }
 }
 </script>
