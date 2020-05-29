@@ -26,13 +26,13 @@ export default class PostPage extends Vue {
     })
 
     return {
-      post: r.data
+      post: r.data || {}
     }
   }
 
   head() {
     // eslint-disable-next-line prefer-const
-    let { title, excerpt, header } = this.post
+    let { title = '', excerpt = '', header = {} } = this.post
     title = `${title} - ${process.env.title}`
     const description = htmlToText.fromString(excerpt)
 

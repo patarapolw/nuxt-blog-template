@@ -60,7 +60,7 @@ export default class Default extends Vue {
   fullUrl = 'https://polv.cc'
 
   get tags() {
-    const tagList = this.$store.state.tag
+    const tagList = JSON.parse(process.env.tag!)
 
     return Object.keys(tagList)
       .sort((a, b) => {

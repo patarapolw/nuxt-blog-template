@@ -13,9 +13,6 @@ import { api } from '@/assets/util'
     PostQuery
   },
   layout: 'blog',
-  middleware({ redirect }) {
-    return redirect('/blog')
-  },
   async asyncData() {
     const ps = (
       await api.post('/api/post/', {

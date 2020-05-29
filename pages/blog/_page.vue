@@ -13,10 +13,7 @@ import { api } from '@/assets/util'
     PostQuery
   },
   layout: 'blog',
-  middleware({ redirect }) {
-    return redirect('/blog')
-  },
-  async asyncData() {
+  async asyncData({ params }) {
     const ps = (
       await api.post('/api/post/', {
         // q: this.q,
@@ -24,8 +21,8 @@ import { api } from '@/assets/util'
           category: 'blog'
           // tag: this.tag
         },
-        // offset: (this.page - 1) * 5,
-        offset: 0,
+        offset: (parseInt(params.page) - 1) * 5,
+        // offset: 0,
         limit: 5,
         hasCount: true,
         sort: {
@@ -52,5 +49,5 @@ import { api } from '@/assets/util'
     }
   }
 })
-export default class Blog extends Vue {}
+export default class BlogPaged extends Vue {}
 </script>

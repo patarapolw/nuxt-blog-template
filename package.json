@@ -5,10 +5,10 @@
   "author": "Pacharapol Withayasakpunt",
   "private": true,
   "scripts": {
+    "predev": "node prerun.js",
     "dev": "nuxt",
-    "build": "nuxt build",
-    "start": "nuxt start",
-    "generate": "nuxt generate",
+    "pregenerate": "node prerun.js",
+    "generate": "nuxt build --target static && nuxt export",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
     "deploy": "gcloud app deploy app.yaml --project $PROJECT_ID"
   },
@@ -23,8 +23,8 @@
     "highlight.js": "^10.0.3",
     "highlightjs-vue": "github:patarapolw/highlightjs-vue",
     "html-to-text": "^5.1.1",
-    "nuxt": "^2.0.0",
     "nuxt-buefy": "^0.3.2",
+    "nuxt-edge": "^2.13.0-26511862.a544fc72",
     "nuxt-mq": "^2.0.1",
     "nuxt-property-decorator": "^2.7.2"
   },
@@ -38,10 +38,10 @@
     "eslint-config-prettier": "^6.10.0",
     "eslint-plugin-nuxt": ">=0.4.2",
     "eslint-plugin-prettier": "^3.1.2",
-    "node-sass": "^4.14.1",
     "prettier": "^1.19.1",
     "pug": "^2.0.4",
     "pug-plain-loader": "^1.0.0",
+    "sass": "^1.26.7",
     "sass-loader": "^8.0.2"
   }
 }
