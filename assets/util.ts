@@ -13,5 +13,5 @@ export function normalizeArray<T>(it: T | T[]): T | undefined {
 }
 
 export const api = axios.create({
-  baseURL: 'https://bd.polv.cc'
+  baseURL: 'https://cms.polv.cc'
 })

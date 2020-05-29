@@ -14,7 +14,7 @@ section
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch } from 'nuxt-property-decorator'
+import { Vue, Component, Watch, Prop } from 'nuxt-property-decorator'
 
 import PostTeaser from './PostTeaser.vue'
 import Empty from './Empty.vue'
@@ -27,6 +27,11 @@ import { normalizeArray, api } from '@/assets/util'
   }
 })
 export default class PostQuery extends Vue {
+  @Prop({ required: true }) defaults!: {
+    count: number
+    posts: any[]
+  }
+
   count = 0
   posts: any[] | null = null
 
@@ -35,22 +40,13 @@ export default class PostQuery extends Vue {
   }
 
   get page() {
-    return parseInt(normalizeArray(this.$route.query.page) || '1')
+    return parseInt(this.$route.params.page || '1')
   }
 
   set page(p) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { page, ...query } = this.$route.query
-
-    this.$router.push({
-      query:
-        p === 1
-          ? query
-          : {
-              ...query,
-              page: p.toString()
-            }
-    })
+    const { path } = this.$route
+    const path0 = path.replace(/\/(\d+)?$/, '')
+    this.$router.push(`${path0 || '/blog'}${p === 1 ? '' : `/${p}`}`)
   }
 
   get tag() {
@@ -62,37 +58,47 @@ export default class PostQuery extends Vue {
   }
 
   @Watch('page')
-  @Watch('q')
   @Watch('tag')
   async updatePosts() {
-    const ps = (
-      await api.post('/api/post/', {
-        q: this.q,
-        cond: {
-          category: 'blog',
-          tag: this.tag
-        },
-        offset: (this.page - 1) * 5,
-        limit: 5,
-        hasCount: true,
-        sort: {
-          key: 'date',
-          desc: true
-        },
-        projection: {
-          slug: 1,
-          title: 1,
-          tag: 1,
-          header: 1,
-          excerpt: 1,
-          remaing: 1,
-          date: 1
-        }
-      })
-    ).data
+    if (this.q) {
+      const ps = (
+        await api.post('/api/post/', {
+          q: this.q,
+          cond: {
+            category: 'blog',
+            tag: this.tag
+          },
+          offset: (this.page - 1) * 5,
+          limit: 5,
+          hasCount: true,
+          sort: {
+            key: 'date',
+            desc: true
+          },
+          projection: {
+            slug: 1,
+            title: 1,
+            tag: 1,
+            header: 1,
+            excerpt: 1,
+            remaing: 1,
+            date: 1
+          }
+        })
+      ).data
 
-    this.count = ps.count
-    this.$set(this, 'posts', ps.data)
+      this.count = ps.count
+      this.$set(this, 'posts', ps.data)
+    } else {
+      this.count = this.defaults.count
+      this.$set(this, 'posts', this.defaults.posts)
+    }
+  }
+
+  @Watch('q')
+  async onQChanged() {
+    await this.updatePosts()
+    this.page = 1
   }
 }
 </script>

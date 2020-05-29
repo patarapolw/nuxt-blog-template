@@ -1,7 +1,7 @@
 export function initRemark42(url: string) {
   // eslint-disable-next-line camelcase
   const remark_config = {
-      host: 'https://remark.polv.cc',
+      host: 'https://remark42.polv.cc',
       // host: 'http://127.0.0.1:8080', // hostname of remark server, same as REMARK_URL in backend config, e.g. "https://demo.remark42.com"
       site_id: 'polv',
       components: ['embed'], // optional param; which components to load. default to ["embed"]

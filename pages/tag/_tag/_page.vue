@@ -13,16 +13,16 @@ import { api } from '@/assets/util'
     PostQuery
   },
   layout: 'blog',
-  async asyncData() {
+  async asyncData({ params }) {
     const ps = (
       await api.post('/api/post/', {
         // q: this.q,
         cond: {
-          category: 'blog'
-          // tag: this.tag
+          category: 'blog',
+          tag: params.tag
         },
-        // offset: (this.page - 1) * 5,
-        offset: 0,
+        offset: (parseInt(params.page) - 1) * 5,
+        // offset: 0,
         limit: 5,
         hasCount: true,
         sort: {
@@ -49,5 +49,5 @@ import { api } from '@/assets/util'
     }
   }
 })
-export default class Blog extends Vue {}
+export default class TagPaged extends Vue {}
 </script>
