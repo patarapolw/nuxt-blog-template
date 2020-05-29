@@ -30,7 +30,7 @@ section
             .card(style="margin-top: 1em; margin-bottom: 1em;")
               header.card-header
                 p.card-header-title Tag cloud
-              .card-content(style="word-break: break-word")
+              .card-content.bn-tag-holder
                 span.bn-tag(v-for="t in tags" :key="t.name")
                   router-link(:class="t.class" :to="'/tag/' + t.name") {{t.name}}
             .card.my-lg
@@ -150,6 +150,12 @@ export default class Default extends Vue {
 .w-100 {
   width: 100%;
   margin: 0 auto;
+}
+
+.bn-tag-holder {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
 }
 
 .bn-tag {
