@@ -7,7 +7,7 @@
         img(:src="post.header.image")
       h2.title {{post.title}}
       .content(v-html="post.excerpt")
-    div(style="display: flex; justify-content: flex-end")
+    div(style="display: flex; justify-content: flex-end; color: #383838;")
       nuxt-link.button.is-danger.is-outlined(:to="url") Read more
 </template>
 

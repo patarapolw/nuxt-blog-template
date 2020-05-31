@@ -1,13 +1,13 @@
 <template lang="pug">
 div.page-social
   b-navbar-item(href="https://twitter.com/patarapolw" target="_blank")
-    fa(:icon="['fab', 'twitter']")
+    fa(:icon="['fab', 'twitter']") Twitter
   b-navbar-item(href="https://www.reddit.com/user/patarapolw" target="_blank")
-    fa(:icon="['fab', 'reddit']")
+    fa(:icon="['fab', 'reddit']") Reddit
   b-navbar-item(href="https://www.quora.com/profile/Pacharapol-Withayasakpunt" target="_blank")
-    fa(:icon="['fab', 'quora']")
+    fa(:icon="['fab', 'quora']") Quora
   b-navbar-item(href="https://github.com/patarapolw" target="_blank")
-    fa(:icon="['fab', 'github']")
+    fa(:icon="['fab', 'github']") GitHub
 </template>
 
 <script lang="ts">

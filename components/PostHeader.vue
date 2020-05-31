@@ -1,9 +1,9 @@
 <template lang="pug">
 .post-meta(style="margin-bottom: 0.5em;")
   .post-meta-author
-    a(:href="author.link" style="width: 24px; min-width: 24px; margin-right: 0.5em;")
+    a(:href="author.link" style="width: 24px; min-width: 24px; margin-right: 0.5em;" :alt="author.login")
       img(:src="author.avatar" style="border-radius: 50%;")
-    a(:href="author.link" style="margin-right: 0.5em;") {{author.login}}
+    a(:href="author.link" style="margin-right: 0.5em;" :alt="author.login") {{author.login}}
   div(style="flex-grow: 1")
   div {{dateString}}
 </template>
