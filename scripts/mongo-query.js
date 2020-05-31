@@ -1,5 +1,3 @@
-import mongodb from 'mongodb'
-import QSearch from '@patarapolw/qsearch'
 import * as z from 'zod'
 
 let client
