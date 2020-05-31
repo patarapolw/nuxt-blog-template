@@ -18,7 +18,7 @@ import { Vue, Component, Watch, Prop } from 'nuxt-property-decorator'
 
 import PostTeaser from './PostTeaser.vue'
 import Empty from './Empty.vue'
-import { normalizeArray, api } from '@/assets/util'
+import { normalizeArray } from '@/assets/util'
 
 @Component({
   components: {
@@ -61,31 +61,13 @@ export default class PostQuery extends Vue {
   @Watch('tag')
   async updatePosts() {
     if (this.q) {
-      const ps = (
-        await api.post('/api/post/', {
-          q: this.q,
-          cond: {
-            category: 'blog',
-            tag: this.tag
-          },
-          offset: (this.page - 1) * 5,
-          limit: 5,
-          hasCount: true,
-          sort: {
-            key: 'date',
-            desc: true
-          },
-          projection: {
-            slug: 1,
-            title: 1,
-            tag: 1,
-            header: 1,
-            excerpt: 1,
-            remaing: 1,
-            date: 1
-          }
-        })
-      ).data
+      const ps = await fetch(
+        `/api/search?q=${encodeURIComponent(this.q)}&offset=${(this.page - 1) *
+          5}${this.tag ? `&tag=${this.tag}` : ''}`,
+        {
+          method: 'POST'
+        }
+      ).then((r) => r.json())
 
       this.count = ps.count
       this.$set(this, 'posts', ps.data)

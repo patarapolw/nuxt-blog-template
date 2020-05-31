@@ -1,14 +1,12 @@
-import fs from 'fs'
-import fg from 'fast-glob'
-import yaml from 'js-yaml'
+// @ts-check
+
+import dayjs from 'dayjs'
+import { sql } from './scripts/query'
 
 export default {
   mode: 'universal',
   target: 'static',
-  telemetry: true,
-  /*
-   ** Headers of the page
-   */
+  telemetry: false,
   head: {
     htmlAttrs: {
       lang: 'en'
@@ -32,31 +30,16 @@ export default {
       }
     ]
   },
-  /*
-   ** Customize the progress-bar color
-   */
   loading: { color: '#fff' },
-  /*
-   ** Global CSS
-   */
   css: [
     'highlight.js/styles/default.css',
     '@fortawesome/fontawesome-svg-core/styles.css'
   ],
-  /*
-   ** Plugins to load before mounting the App
-   */
   plugins: [
     '~/plugins/fontawesome.js',
     '~/plugins/requestIdleCallback.client.js'
   ],
-  /*
-   ** Nuxt.js dev-modules
-   */
   buildModules: ['@nuxt/typescript-build'],
-  /*
-   ** Nuxt.js modules
-   */
   modules: [
     // Doc: https://buefy.github.io/#/documentation
     [
@@ -78,37 +61,74 @@ export default {
           desktop: Infinity
         }
       }
-    ],
-    '@nuxtjs/proxy'
+    ]
   ],
-  proxy: ['http://localhost:9000'], // Netlify lambda
-  /*
-   ** Build configuration
-   */
   build: {
-    /*
-     ** You can extend webpack config here
+    /**
+     *
+     * @param {any} config
      */
     extend(config) {
+      config.node = {
+        fs: 'empty'
+      }
+      // config.target = 'node'
+
       config.module.rules.push({
-        enforce: 'pre',
         test: /assets\/posts\/.+\.md$/,
-        loader: 'raw-loader'
+        loader: 'raw-loader',
+        options: {
+          esModule: false
+        }
       })
     }
   },
   env: {
     title: "polv's homepage",
     baseUrl: 'https://www.polv.cc',
-    tag: fs.readFileSync('tag.json', 'utf-8')
+    tag: JSON.stringify(
+      sql
+        .prepare(
+          /* sql */ `
+    SELECT tag FROM [raw]
+    `
+        )
+        .all()
+        .map((r) => r.tag.split(' '))
+        .reduce((prev, c) => {
+          /**
+           * @type {string[]}
+           */
+          const ts = c
+
+          ts.map((t) => {
+            prev[t] = prev[t] || 0
+            prev[t]++
+          })
+
+          return prev
+        }, {})
+    )
   },
-  async routes() {
-    const files = await fg('assets/posts/*.md')
+  routes() {
+    const r = sql
+      .prepare(
+        /* sql */ `
+    SELECT slug, tag, [date] FROM [raw]
+    `
+      )
+      .all()
     const routes = ['/', '/blog']
 
     const blog = new Set()
     const tag = new Map()
 
+    /**
+     *
+     * @param {object} h
+     * @param {string} h.slug
+     * @param {Date | undefined} [h.date]
+     */
     const getUrl = (h) => {
       if (h.date) {
         const d = new Date(h.date)
@@ -120,32 +140,24 @@ export default {
       return `/post/${h.slug}`
     }
 
-    files.map((f) => {
-      const slug = f.replace(/^.+\//, '').replace(/\.md/, '')
-      let header = {}
-      const md = fs.readFileSync(f, 'utf8')
-
-      if (md.startsWith('---\n')) {
-        header = yaml.safeLoad(md.substr(4).split('---')[0], {
-          schema: yaml.JSON_SCHEMA
-        })
-      }
-
+    r.map((f) => {
       const p = {
-        slug,
-        tag: header.tag,
-        date: header.date
+        slug: f.slug,
+        date: f.date ? dayjs(f.date).toDate() : undefined
       }
       blog.add(p)
       routes.push(getUrl(p))
 
-      if (p.tag) {
-        p.tag.map((t) => {
-          const ts = tag.get(t) || new Set()
-          ts.add(p)
-          tag.set(t, ts)
-        })
-      }
+      /**
+       * @type {string[]}
+       */
+      const ts = (f.tag || '').split(' ')
+
+      ts.map((t) => {
+        const ts = tag.get(t) || new Set()
+        ts.add(p)
+        tag.set(t, ts)
+      })
     })
 
     Array(Math.ceil(blog.size / 5))

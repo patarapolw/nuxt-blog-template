@@ -6,8 +6,9 @@ PostFull(:post="post")
 import { Vue, Component } from 'nuxt-property-decorator'
 
 import htmlToText from 'html-to-text'
+import { sql } from '@/scripts/query'
 import PostFull from '@/components/PostFull.vue'
-import { api } from '@/assets/util'
+import MakeHtml from '@/assets/make-html'
 
 @Component({
   components: {
@@ -18,15 +19,25 @@ import { api } from '@/assets/util'
 export default class PostPage extends Vue {
   post: any = {}
 
+  // eslint-disable-next-line require-await
   async asyncData({ params }: any) {
-    const r = await api.get('/api/post', {
-      params: {
-        slug: params.slug
-      }
-    })
+    const markdown = require(`@/assets/posts/${params.slug}`)
+    const { title, image, tag } =
+      sql
+        .prepare(
+          /* sql */ `
+    SELECT title, [image] tag FROM [raw] WHERE slug = ?
+    `
+        )
+        .get(params.slug) || {}
 
     return {
-      post: r.data || {}
+      post: {
+        title,
+        image,
+        tag,
+        html: new MakeHtml(params.slug).render(markdown)
+      }
     }
   }
 

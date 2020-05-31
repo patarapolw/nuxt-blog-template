@@ -16,5 +16,7 @@ module.exports = {
   ],
   // add your custom rules here
   rules: {
+    'import/named': 0,
+    'no-unused-vars': 0
   }
 }

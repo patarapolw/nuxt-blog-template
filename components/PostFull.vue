@@ -5,9 +5,9 @@ section
       .card-content.content
         PostHeader(:post="post")
         h1.title {{post.title}}
-        .image-full(v-if="post.header.image")
-          img(:src="post.header.image")
-        div(v-html="post.excerpt + post.remaining")
+        .image-full(v-if="post.image")
+          img(:src="post.image")
+        div(v-html="html")
         div(style="word-break: break-word")
           span(style="margin-right: 0.5em;") Tags:
           span(v-for="t in post.tag || []" :key="t" style="margin-right: 0.5em;")
@@ -20,7 +20,6 @@ section
 <script lang="ts">
 import { Vue, Component, Prop, Watch } from 'nuxt-property-decorator'
 
-import { highlightBlock } from '../assets/hljs'
 import { initRemark42 } from '../assets/remark42'
 import PostHeader from './PostHeader.vue'
 
@@ -45,7 +44,6 @@ export default class PostFull extends Vue {
   }
 
   mounted() {
-    this.updatePost()
     this.onRouteChange()
   }
 
@@ -60,11 +58,6 @@ export default class PostFull extends Vue {
 
       initRemark42(location.origin + location.pathname)
     }
-  }
-
-  @Watch('content')
-  updatePost() {
-    highlightBlock(this.$el)
   }
 }
 </script>

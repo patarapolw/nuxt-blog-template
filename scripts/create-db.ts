@@ -13,24 +13,25 @@ async function main(filename: string) {
   sql.exec(/* sql */ `
   CREATE TABLE [raw] (
     slug    TEXT PRIMARY KEY,
+    title   TEXT NOT NULL,
     [date]  TEXT,
     [image] TEXT,
     tag     TEXT NOT NULL, -- space separated
     excerpt TEXT NOT NULL
   );
 
-  CREATE VIRTUAL TABLE q USING FTS5(slug, tag, excerpt);
+  CREATE VIRTUAL TABLE q USING FTS5(title, slug, tag, excerpt);
   `)
 
   const files = await fg('assets/posts/*.md')
 
   const insertRaw = sql.prepare(/* sql */ `
-  INSERT INTO [raw] (slug, [date], [image], tag, excerpt)
-  VALUES (@slug, @date, @image, @tag, @excerpt)
+  INSERT INTO [raw] (slug, title, [date], [image], tag, excerpt)
+  VALUES (@slug, @title, @date, @image, @tag, @excerpt)
   `)
   const insertQ = sql.prepare(/* sql */ `
-  INSERT INTO q (slug, tag, excerpt)
-  VALUES (@slug, @tag, @excerpt)
+  INSERT INTO q (slug, title, tag, excerpt)
+  VALUES (@slug, @title, @tag, @excerpt)
   `)
 
   sql.transaction(() => {
@@ -50,6 +51,7 @@ async function main(filename: string) {
 
       const p = {
         slug,
+        title: header.title,
         date: header.date,
         image: header.image,
         tag: (header.tag || [])
@@ -60,6 +62,7 @@ async function main(filename: string) {
 
       insertRaw.run(p)
       insertQ.run({
+        title: p.title,
         slug: p.slug.replace(/-/g, ' '),
         tag: p.tag,
         excerpt: p.excerpt
@@ -73,26 +76,3 @@ async function main(filename: string) {
 if (require.main === module) {
   main('./build/db.sqlite3')
 }
-
-// ;(async () => {
-//   const r = await axios.post('https://cms.polv.cc/api/post/', {
-//     cond: {
-//       category: 'blog'
-//     },
-//     limit: null,
-//     projection: {
-//       tag: 1
-//     }
-//   })
-
-//   const tag = r.data.data
-//     .map((h) => h.tag || [])
-//     .reduce((prev, c) => [...prev, ...c], [])
-//     .reduce((prev, c) => {
-//       c = c.toLocaleLowerCase()
-//       prev[c] = (prev[c] || 0) + 1
-//       return prev
-//     }, {})
-
-//   fs.writeFileSync('tag.json', JSON.stringify(tag))
-// })()
