@@ -94,3 +94,4 @@ sw.*
 
 # Local Netlify folder
 .netlify
+/lambda-dist
