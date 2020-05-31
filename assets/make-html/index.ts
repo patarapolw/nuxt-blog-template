@@ -81,7 +81,11 @@ export default class MakeHtml {
 
   render(s: string) {
     try {
-      this.html = this._mdConvert(s)
+      if (s.startsWith('---\n')) {
+        s = s.substr(4).split(/---\n(.*)$/s)[1] || ''
+      }
+
+      this.html = this._mdConvert(s.replace(/<!--.*?-->/g, ''))
     } catch (e) {}
 
     return this.html

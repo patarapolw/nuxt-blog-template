@@ -7,7 +7,7 @@ section
         h1.title {{post.title}}
         .image-full(v-if="post.image")
           img(:src="post.image")
-        div(v-html="html")
+        div(v-html="post.html")
         div(style="word-break: break-word")
           span(style="margin-right: 0.5em;") Tags:
           span(v-for="t in post.tag || []" :key="t" style="margin-right: 0.5em;")

@@ -61,7 +61,8 @@ export default {
           desktop: Infinity
         }
       }
-    ]
+    ],
+    '@nuxtjs/axios'
   ],
   build: {
     /**
@@ -72,7 +73,6 @@ export default {
       config.node = {
         fs: 'empty'
       }
-      // config.target = 'node'
 
       config.module.rules.push({
         test: /assets\/posts\/.+\.md$/,
@@ -87,6 +87,7 @@ export default {
     title: "polv's homepage",
     baseUrl: 'https://www.polv.cc',
     tag: JSON.stringify(
+      // @ts-ignore
       sql
         .prepare(
           /* sql */ `
@@ -111,6 +112,7 @@ export default {
     )
   },
   routes() {
+    // @ts-ignore
     const r = sql
       .prepare(
         /* sql */ `

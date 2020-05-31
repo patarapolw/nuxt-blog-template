@@ -7,7 +7,7 @@ const handler: NowApiHandler = (req, res) => {
   const tag = normalizeArray(req.query.tag)
   const offset = parseInt(normalizeArray(req.query.offset) || '0')
 
-  res.json(search({ q, tag, offset }))
+  res.json(search({ q, tag, offset }) || {})
 }
 
 export default handler

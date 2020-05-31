@@ -4,8 +4,7 @@ PostQuery(:defaults="defaults")
 
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator'
-
-import { search } from '../../scripts/query'
+import { search } from '@/scripts/query'
 import PostQuery from '@/components/PostQuery.vue'
 
 @Component({
@@ -13,15 +12,21 @@ import PostQuery from '@/components/PostQuery.vue'
     PostQuery
   },
   layout: 'blog',
-  async asyncData({ params }) {
-    const ps = await search({
-      offset: (parseInt(params.page) - 1) * 5
-    })
+  async asyncData({ app, params }) {
+    const ps =
+      (await search({
+        offset: (parseInt(params.page) - 1) * 5
+      })) ||
+      (await app.$axios.$post(`/api/search`, undefined, {
+        params: {
+          offset: (parseInt(params.page) - 1) * 5
+        }
+      }))
 
     return {
       defaults: {
-        count: ps.count,
-        posts: ps.result
+        count: ps!.count,
+        posts: ps!.result
       }
     }
   }

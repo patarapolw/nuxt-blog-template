@@ -4,9 +4,8 @@ PostFull(:post="post")
 
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator'
-
 import htmlToText from 'html-to-text'
-import { sql } from '@/scripts/query'
+import { get } from '@/scripts/query'
 import PostFull from '@/components/PostFull.vue'
 import MakeHtml from '@/assets/make-html'
 
@@ -14,22 +13,16 @@ import MakeHtml from '@/assets/make-html'
   components: {
     PostFull
   },
-  layout: 'blog'
-})
-export default class PostPage extends Vue {
-  post: any = {}
-
-  // eslint-disable-next-line require-await
-  async asyncData({ params }: any) {
-    const markdown = require(`@/assets/posts/${params.slug}`)
+  layout: 'blog',
+  async asyncData({ app, params }) {
+    const markdown = require(`@/assets/posts/${params.slug}.md`)
     const { title, image, tag } =
-      sql
-        .prepare(
-          /* sql */ `
-    SELECT title, [image] tag FROM [raw] WHERE slug = ?
-    `
-        )
-        .get(params.slug) || {}
+      get(params.slug) ||
+      (await app.$axios.$post(`/api/post`, undefined, {
+        params: {
+          slug: params.slug
+        }
+      }))!
 
     return {
       post: {
@@ -40,6 +33,9 @@ export default class PostPage extends Vue {
       }
     }
   }
+})
+export default class PostPage extends Vue {
+  post: any = {}
 
   head() {
     // eslint-disable-next-line prefer-const

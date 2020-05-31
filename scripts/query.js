@@ -15,16 +15,23 @@ import { splitOp } from '../assets/make-html/split'
  * @property {string} excerpt
  */
 
-export const sql = sqlite3('./build/db.sqlite3', { readonly: true })
+export const sql =
+  typeof module !== 'undefined' && module.exports
+    ? sqlite3('./build/db.sqlite3', { readonly: true })
+    : null
 
 /**
  *
  * @param {object} [opts={}]
- * * @param {string | undefined} [opts.q]
+ * @param {string | undefined} [opts.q]
  * @param {string | undefined} [opts.tag]
  * @param {number} [opts.offset]
  */
 export function search(opts = {}) {
+  if (!sql) {
+    return null
+  }
+
   const { q = '', tag, offset = 0 } = z
     .object({
       q: z.string().optional(),
@@ -192,6 +199,31 @@ export function search(opts = {}) {
   return {
     result,
     count
+  }
+}
+
+/**
+ *
+ * @param {string} slug
+ */
+export function get(slug) {
+  if (!sql) {
+    return null
+  }
+
+  const { title, image, tag } =
+    sql
+      .prepare(
+        /* sql */ `
+    SELECT title, [image], tag FROM [raw] WHERE slug = ?
+    `
+      )
+      .get([slug]) || {}
+
+  return {
+    title,
+    image,
+    tag: tag.split(' ')
   }
 }
 

@@ -13,11 +13,18 @@ import PostQuery from '@/components/PostQuery.vue'
     PostQuery
   },
   layout: 'blog',
-  async asyncData({ params }) {
-    const ps = await search({
-      tag: params.tag,
-      offset: (parseInt(params.page) - 1) * 5
-    })
+  async asyncData({ app, params }) {
+    const ps =
+      (await search({
+        tag: params.tag,
+        offset: (parseInt(params.page) - 1) * 5
+      })) ||
+      (await app.$axios.$post(`/api/search`, undefined, {
+        params: {
+          tag: params.tag,
+          offset: (parseInt(params.page) - 1) * 5
+        }
+      }))!
 
     return {
       defaults: {
