@@ -1,6 +1,6 @@
 import fs from 'fs'
-
-import axios from 'axios'
+import fg from 'fast-glob'
+import yaml from 'js-yaml'
 
 export default {
   mode: 'universal',
@@ -79,14 +79,9 @@ export default {
         }
       }
     ],
-    // Doc: https://axios.nuxtjs.org/usage
-    '@nuxtjs/axios'
+    '@nuxtjs/proxy'
   ],
-  /*
-   ** Axios module configuration
-   ** See https://axios.nuxtjs.org/options
-   */
-  axios: {},
+  proxy: ['http://localhost:9000'], // Netlify lambda
   /*
    ** Build configuration
    */
@@ -94,7 +89,13 @@ export default {
     /*
      ** You can extend webpack config here
      */
-    // extend(config, ctx) {}
+    extend(config) {
+      config.module.rules.push({
+        enforce: 'pre',
+        test: /assets\/posts\/.+\.md$/,
+        loader: 'raw-loader'
+      })
+    }
   },
   env: {
     title: "polv's homepage",
@@ -102,25 +103,7 @@ export default {
     tag: fs.readFileSync('tag.json', 'utf-8')
   },
   async routes() {
-    const r = await axios
-      .create({
-        baseURL: 'https://cms.polv.cc'
-      })
-      .post('/api/post/', {
-        cond: {
-          category: 'blog'
-        },
-        offset: 0,
-        limit: null,
-        hasCount: false,
-        projection: {
-          slug: 1,
-          tag: 1,
-          date: 1
-        }
-      })
-
-    const posts = r.data.data
+    const files = await fg('assets/posts/*.md')
     const routes = ['/', '/blog']
 
     const blog = new Set()
@@ -137,7 +120,22 @@ export default {
       return `/post/${h.slug}`
     }
 
-    posts.map((p) => {
+    files.map((f) => {
+      const slug = f.replace(/^.+\//, '').replace(/\.md/, '')
+      let header = {}
+      const md = fs.readFileSync(f, 'utf8')
+
+      if (md.startsWith('---\n')) {
+        header = yaml.safeLoad(md.substr(4).split('---')[0], {
+          schema: yaml.JSON_SCHEMA
+        })
+      }
+
+      const p = {
+        slug,
+        tag: header.tag,
+        date: header.date
+      }
       blog.add(p)
       routes.push(getUrl(p))
 

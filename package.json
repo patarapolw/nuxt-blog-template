@@ -13,25 +13,32 @@
     "prebuild": "node prerun.js",
     "build": "run-p 'build:**'",
     "build:nuxt": "nuxt build --target static && nuxt export",
-    "build:lambda": "netlify-lambda build lambda",
-    "start:lambda": "netlify-lambda serve lambda"
+    "build:lambda": "netlify-lambda build -c ./webpack.functions.js lambda",
+    "start:lambda": "netlify-lambda serve -c ./webpack.functions.js lambda"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.28",
     "@fortawesome/free-brands-svg-icons": "^5.13.0",
     "@fortawesome/free-solid-svg-icons": "^5.13.0",
     "@fortawesome/vue-fontawesome": "^0.1.9",
-    "@nuxtjs/axios": "^5.3.6",
-    "axios": "^0.19.2",
+    "@nuxtjs/proxy": "^1.3.3",
+    "@patarapolw/qsearch": "^1.2.2",
+    "@types/js-yaml": "^3.12.4",
+    "@types/mongodb": "^3.5.20",
     "dayjs": "^1.8.27",
+    "dotenv-webpack": "^1.8.0",
+    "fast-glob": "^3.2.2",
     "highlight.js": "^10.0.3",
     "highlightjs-vue": "github:patarapolw/highlightjs-vue",
     "html-to-text": "^5.1.1",
+    "js-yaml": "^3.14.0",
+    "mongodb": "^3.5.8",
     "netlify-lambda": "^1.6.3",
     "nuxt-buefy": "^0.3.2",
     "nuxt-edge": "^2.13.0-26511862.a544fc72",
     "nuxt-mq": "^2.0.1",
-    "nuxt-property-decorator": "^2.7.2"
+    "nuxt-property-decorator": "^2.7.2",
+    "zod": "^1.6.1"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.10.1",
@@ -50,6 +57,7 @@
     "prettier": "^1.19.1",
     "pug": "^2.0.4",
     "pug-plain-loader": "^1.0.0",
+    "raw-loader": "^4.0.1",
     "sass": "^1.26.7",
     "sass-loader": "^8.0.2"
   }

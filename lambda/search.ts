@@ -1,10 +1,20 @@
-import { Context, Callback } from 'aws-lambda'
+import { APIGatewayProxyHandler } from 'aws-lambda'
+import { search } from '../scripts/mongo-query'
 
-export function handler(_event: any, _: Context, callback: Callback) {
-  callback(null, {
-    statusCode: 200,
-    body: JSON.stringify({
-      message: `Hello world ${Math.floor(Math.random() * 10)}`
-    })
+export const handler: APIGatewayProxyHandler = (evt, _, callback) => {
+  const { q = '', offset = '0', tag } = evt.queryStringParameters || {}
+
+  search(q, {
+    cond: {
+      tag
+    },
+    offset: parseInt(offset)
   })
+    .then((r) => {
+      callback(null, {
+        statusCode: 200,
+        body: JSON.stringify(r)
+      })
+    })
+    .catch(callback)
 }
