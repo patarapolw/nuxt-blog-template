@@ -119,9 +119,11 @@ export default class Default extends Vue {
     this.q = normalizeArray(this.$route.query.q) || ''
 
     if (process.client) {
-      const { twttr } = window as any
-      if (twttr) {
-        twttr.widgets.load()
+      const { twttr, requestIdleCallback } = window as any
+      if (twttr && requestIdleCallback) {
+        requestIdleCallback(() => {
+          twttr.widgets.load()
+        })
       }
     }
   }
