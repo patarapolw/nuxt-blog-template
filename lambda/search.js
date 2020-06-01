@@ -1,4 +1,3 @@
-import qs from 'querystring'
 import lunr from 'lunr'
 import idxJson from '../build/idx.json'
 import rawJson from '../build/raw.json'
@@ -8,10 +7,9 @@ import rawJson from '../build/raw.json'
  */
 let idx
 
-export default (req, res) => {
-  const { q = '', tag, offset = '0' } = qs.parse(
-    req.originalUrl.split('?')[1] || ''
-  )
+// eslint-disable-next-line require-await
+export async function handler(evt) {
+  const { q = '', tag, offset = '0' } = evt.queryStringParameters || {}
 
   idx = idx || lunr.Index.load(idxJson)
 
@@ -34,10 +32,11 @@ export default (req, res) => {
     })
     .slice(parseInt(offset), parseInt(offset) + 5)
 
-  res.end(
-    JSON.stringify({
+  return {
+    statusCode: 200,
+    body: JSON.stringify({
       count,
       result
     })
-  )
+  }
 }

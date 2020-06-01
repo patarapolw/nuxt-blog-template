@@ -1,16 +1,18 @@
 import qs from 'querystring'
-import { get } from '../scripts/mongo/query'
+import rawJson from '../build/raw.json'
 
 export default (req, res, next) => {
-  const { slug } = qs.parse(req.url.split('?')[1] || '')
+  const { slug } = qs.parse(req.originalUrl.split('?')[1] || '')
 
   if (!slug) {
     next(new Error('slug must be provided'))
   }
 
-  get(slug)
-    .then((r) => {
-      res.end(JSON.stringify(r))
+  const r = rawJson[slug] || {}
+  res.end(
+    JSON.stringify({
+      slug,
+      ...r
     })
-    .catch(next)
+  )
 }

@@ -1,7 +1,9 @@
 // @ts-check
 
 import fs from 'fs'
-import { connect, disconnect } from './scripts/mongo/connection'
+import dayjs from 'dayjs'
+// @ts-ignore
+import rawJson from './build/raw.json'
 
 export default {
   mode: 'universal',
@@ -92,13 +94,9 @@ export default {
   env: {
     title: "polv's homepage",
     baseUrl: 'https://www.polv.cc',
-    tag: fs.readFileSync('build/tag.json', 'utf8')
+    tag: fs.readFileSync('./build/tag.json', 'utf-8')
   },
-  async routes() {
-    const col = await connect()
-    const r = await col
-      .find({}, { projection: { _id: 1, tag: 1, date: 1 } })
-      .toArray()
+  routes() {
     const routes = ['/', '/blog']
 
     const blog = new Set()
@@ -121,25 +119,31 @@ export default {
       return `/post/${h.slug}`
     }
 
-    r.map((f) => {
-      const p = {
-        slug: f._id,
-        date: f.date
-      }
-      blog.add(p)
-      routes.push(getUrl(p))
+    Object.entries(rawJson)
+      .map(([slug, { tag, date }]) => ({
+        slug,
+        tag,
+        date
+      }))
+      .map((f) => {
+        const p = {
+          slug: f.slug,
+          date: f.date ? dayjs(f.date).toDate() : undefined
+        }
+        blog.add(p)
+        routes.push(getUrl(p))
 
-      /**
-       * @type {string[]}
-       */
-      const ts = (f.tag || '').split(' ')
+        /**
+         * @type {string[]}
+         */
+        const ts = (f.tag || '').split(' ')
 
-      ts.map((t) => {
-        const ts = tag.get(t) || new Set()
-        ts.add(p)
-        tag.set(t, ts)
+        ts.map((t) => {
+          const ts = tag.get(t) || new Set()
+          ts.add(p)
+          tag.set(t, ts)
+        })
       })
-    })
 
     Array(Math.ceil(blog.size / 5))
       .fill(null)
@@ -161,15 +165,6 @@ export default {
         })
     })
 
-    await disconnect()
-
     return routes
-  },
-  hooks: {
-    generate: {
-      done() {
-        disconnect()
-      }
-    }
   }
 }
