@@ -16,7 +16,7 @@ import { splitOp } from '../assets/make-html/split'
  */
 
 export const sql =
-  typeof module !== 'undefined' && module.exports
+  typeof module !== 'undefined'
     ? sqlite3('./build/db.sqlite3', { readonly: true })
     : null
 
@@ -51,6 +51,7 @@ export function search(opts = {}) {
     ? [
         {
           k: 'tag',
+          op: '=',
           v: tag
         }
       ]
@@ -245,12 +246,12 @@ export class SQLParams {
       )
     }
 
-    let k = '$' + ++this.counter
+    let k = ++this.counter
     while (this.data[k]) {
-      k = '$' + ++this.counter
+      k = ++this.counter
     }
 
-    this.data[k] = v
-    return k
+    this.data[k] = typeof v === 'undefined' ? null : v
+    return '$' + k
   }
 }

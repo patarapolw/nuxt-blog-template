@@ -2,6 +2,9 @@
   "functions": {
     "api/search.ts": {
       "includeFiles": "build/**"
+    },
+    "api/post.ts": {
+      "includeFiles": "build/**"
     }
   }
 }
