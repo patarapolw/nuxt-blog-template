@@ -61,8 +61,8 @@ async function main() {
     JSON.stringify(
       lunr(function() {
         this.ref('slug')
-        this.field('title')
-        this.field('tag')
+        this.field('title', { boost: 5 })
+        this.field('tag', { boost: 5 })
         this.field('excerpt')
 
         rawJson.map((doc) => {

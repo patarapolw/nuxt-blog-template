@@ -60,13 +60,17 @@ export default class PostQuery extends Vue {
   @Watch('tag')
   async updatePosts() {
     if (this.q) {
-      const ps = await this.$axios.$get('/api/search', {
-        params: {
-          q: this.q,
-          offset: (this.page - 1) * 5,
-          tag: this.tag
+      const ps = await this.$axios.$post(
+        '/.netlify/functions/search',
+        undefined,
+        {
+          params: {
+            q: this.q,
+            offset: (this.page - 1) * 5,
+            tag: this.tag
+          }
         }
-      })
+      )
 
       this.count = ps.count
       this.$set(this, 'posts', ps.result)

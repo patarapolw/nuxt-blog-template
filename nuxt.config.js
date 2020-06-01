@@ -66,6 +66,12 @@ export default {
     ],
     '@nuxtjs/axios'
   ],
+  axios: {
+    proxy: true // Can be also an object with default options
+  },
+  proxy: {
+    '/.netlify/functions': 'http://localhost:9000'
+  },
   serverMiddleware: [
     { path: '/api/post', handler: '~/serverMiddleware/post.js' },
     { path: '/api/search', handler: '~/serverMiddleware/search.js' }
