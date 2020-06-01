@@ -15,10 +15,9 @@ section
 
 <script lang="ts">
 import { Vue, Component, Watch, Prop } from 'nuxt-property-decorator'
-
 import PostTeaser from './PostTeaser.vue'
 import Empty from './Empty.vue'
-import { normalizeArray, api } from '@/assets/util'
+import { normalizeArray } from '@/assets/util'
 
 @Component({
   components: {
@@ -61,34 +60,20 @@ export default class PostQuery extends Vue {
   @Watch('tag')
   async updatePosts() {
     if (this.q) {
-      const ps = (
-        await api.post('/api/post/', {
-          q: this.q,
-          cond: {
-            category: 'blog',
+      const ps = await this.$axios.$post(
+        '/.netlify/functions/search',
+        undefined,
+        {
+          params: {
+            q: this.q,
+            offset: (this.page - 1) * 5,
             tag: this.tag
-          },
-          offset: (this.page - 1) * 5,
-          limit: 5,
-          hasCount: true,
-          sort: {
-            key: 'date',
-            desc: true
-          },
-          projection: {
-            slug: 1,
-            title: 1,
-            tag: 1,
-            header: 1,
-            excerpt: 1,
-            remaing: 1,
-            date: 1
           }
-        })
-      ).data
+        }
+      )
 
       this.count = ps.count
-      this.$set(this, 'posts', ps.data)
+      this.$set(this, 'posts', ps.result)
     } else {
       this.count = this.defaults.count
       this.$set(this, 'posts', this.defaults.posts)
@@ -96,9 +81,14 @@ export default class PostQuery extends Vue {
   }
 
   @Watch('q')
-  async onQChanged() {
-    await this.updatePosts()
-    this.page = 1
+  onQChanged() {
+    this.$router.push({
+      path: '/blog',
+      query: {
+        q: this.q
+      }
+    })
+    this.updatePosts()
   }
 }
 </script>

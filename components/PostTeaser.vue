@@ -3,19 +3,19 @@
   .card-content
     PostHeader(:post="post")
     .post-content
-      .image-teaser(v-if="post.header.image")
-        img(:src="post.header.image")
+      .image-teaser(v-if="post.image")
+        img(:src="post.image")
       h2.title {{post.title}}
-      .content(v-html="post.excerpt")
+      .content(v-html="html")
     div(style="display: flex; justify-content: flex-end; color: #383838;")
       nuxt-link.button.is-danger.is-outlined(:to="url") Read more
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'nuxt-property-decorator'
+import { Vue, Component, Prop } from 'nuxt-property-decorator'
 
 import PostHeader from './PostHeader.vue'
-import { highlightBlock } from '@/assets/hljs'
+import MakeHtml from '@/assets/make-html'
 
 @Component({
   components: {
@@ -38,13 +38,8 @@ export default class PostTeaser extends Vue {
     return `/post/${h.slug}`
   }
 
-  mounted() {
-    this.onExcerptUpdate()
-  }
-
-  @Watch('excerpt')
-  onExcerptUpdate() {
-    highlightBlock(this.$el)
+  get html() {
+    return new MakeHtml().render(this.post.excerpt)
   }
 }
 </script>

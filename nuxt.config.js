@@ -1,14 +1,12 @@
-import fs from 'fs'
+// @ts-check
 
-import axios from 'axios'
+import fs from 'fs'
+import { connect, disconnect } from './scripts/mongo/connection'
 
 export default {
   mode: 'universal',
   target: 'static',
-  telemetry: true,
-  /*
-   ** Headers of the page
-   */
+  telemetry: false,
   head: {
     htmlAttrs: {
       lang: 'en'
@@ -32,31 +30,16 @@ export default {
       }
     ]
   },
-  /*
-   ** Customize the progress-bar color
-   */
   loading: { color: '#fff' },
-  /*
-   ** Global CSS
-   */
   css: [
     'highlight.js/styles/default.css',
     '@fortawesome/fontawesome-svg-core/styles.css'
   ],
-  /*
-   ** Plugins to load before mounting the App
-   */
   plugins: [
     '~/plugins/fontawesome.js',
     '~/plugins/requestIdleCallback.client.js'
   ],
-  /*
-   ** Nuxt.js dev-modules
-   */
   buildModules: ['@nuxt/typescript-build'],
-  /*
-   ** Nuxt.js modules
-   */
   modules: [
     // Doc: https://buefy.github.io/#/documentation
     [
@@ -79,53 +62,54 @@ export default {
         }
       }
     ],
-    // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios'
   ],
-  /*
-   ** Axios module configuration
-   ** See https://axios.nuxtjs.org/options
-   */
-  axios: {},
-  /*
-   ** Build configuration
-   */
+  axios: {
+    proxy: true // Can be also an object with default options
+  },
+  proxy: {
+    '/.netlify/functions': 'http://localhost:9000'
+  },
+  serverMiddleware: [
+    { path: '/api/post', handler: '~/serverMiddleware/post.js' },
+    { path: '/api/search', handler: '~/serverMiddleware/search.js' }
+  ],
   build: {
-    /*
-     ** You can extend webpack config here
+    /**
+     *
+     * @param {any} config
      */
-    // extend(config, ctx) {}
+    extend(config) {
+      config.module.rules.push({
+        test: /assets\/posts\/.+\.md$/,
+        loader: 'raw-loader',
+        options: {
+          esModule: false
+        }
+      })
+    }
   },
   env: {
     title: "polv's homepage",
     baseUrl: 'https://www.polv.cc',
-    tag: fs.readFileSync('tag.json', 'utf-8')
+    tag: fs.readFileSync('build/tag.json', 'utf8')
   },
   async routes() {
-    const r = await axios
-      .create({
-        baseURL: 'https://cms.polv.cc'
-      })
-      .post('/api/post/', {
-        cond: {
-          category: 'blog'
-        },
-        offset: 0,
-        limit: null,
-        hasCount: false,
-        projection: {
-          slug: 1,
-          tag: 1,
-          date: 1
-        }
-      })
-
-    const posts = r.data.data
+    const col = await connect()
+    const r = await col
+      .find({}, { projection: { _id: 1, tag: 1, date: 1 } })
+      .toArray()
     const routes = ['/', '/blog']
 
     const blog = new Set()
     const tag = new Map()
 
+    /**
+     *
+     * @param {object} h
+     * @param {string} h.slug
+     * @param {Date | undefined} [h.date]
+     */
     const getUrl = (h) => {
       if (h.date) {
         const d = new Date(h.date)
@@ -137,17 +121,24 @@ export default {
       return `/post/${h.slug}`
     }
 
-    posts.map((p) => {
+    r.map((f) => {
+      const p = {
+        slug: f._id,
+        date: f.date
+      }
       blog.add(p)
       routes.push(getUrl(p))
 
-      if (p.tag) {
-        p.tag.map((t) => {
-          const ts = tag.get(t) || new Set()
-          ts.add(p)
-          tag.set(t, ts)
-        })
-      }
+      /**
+       * @type {string[]}
+       */
+      const ts = (f.tag || '').split(' ')
+
+      ts.map((t) => {
+        const ts = tag.get(t) || new Set()
+        ts.add(p)
+        tag.set(t, ts)
+      })
     })
 
     Array(Math.ceil(blog.size / 5))
@@ -170,6 +161,15 @@ export default {
         })
     })
 
+    await disconnect()
+
     return routes
+  },
+  hooks: {
+    generate: {
+      done() {
+        disconnect()
+      }
+    }
   }
 }

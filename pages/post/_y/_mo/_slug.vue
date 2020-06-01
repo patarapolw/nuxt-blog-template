@@ -4,31 +4,35 @@ PostFull(:post="post")
 
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator'
-
 import htmlToText from 'html-to-text'
 import PostFull from '@/components/PostFull.vue'
-import { api } from '@/assets/util'
+import MakeHtml from '@/assets/make-html'
 
 @Component({
   components: {
     PostFull
   },
-  layout: 'blog'
-})
-export default class PostPage extends Vue {
-  post: any = {}
-
-  async asyncData({ params }: any) {
-    const r = await api.get('/api/post', {
+  layout: 'blog',
+  async asyncData({ app, params }) {
+    const markdown = require(`@/assets/posts/${params.slug}.md`)
+    const { title, image, tag } = (await app.$axios.$get(`/api/post`, {
       params: {
         slug: params.slug
       }
-    })
+    }))!
 
     return {
-      post: r.data || {}
+      post: {
+        title,
+        image,
+        tag,
+        html: new MakeHtml(params.slug).render(markdown)
+      }
     }
   }
+})
+export default class PostPage extends Vue {
+  post: any = {}
 
   head() {
     // eslint-disable-next-line prefer-const

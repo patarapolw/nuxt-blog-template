@@ -89,8 +89,6 @@ sw.*
 # Vim swap files
 *.swp
 
-# Generated files
-/tag.json
-
-# Local Netlify folder
 .netlify
+/lambda-dist
+.vercel
