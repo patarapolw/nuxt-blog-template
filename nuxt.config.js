@@ -1,7 +1,7 @@
 // @ts-check
 
-import fs from 'fs'
-import { connect, disconnect } from './scripts/mongo/connection'
+import dayjs from 'dayjs'
+import { sql } from './scripts/sqlite/query'
 
 export default {
   mode: 'universal',
@@ -64,12 +64,6 @@ export default {
     ],
     '@nuxtjs/axios'
   ],
-  axios: {
-    proxy: true // Can be also an object with default options
-  },
-  proxy: {
-    '/.netlify/functions': 'http://localhost:9000'
-  },
   serverMiddleware: [
     { path: '/api/post', handler: '~/serverMiddleware/post.js' },
     { path: '/api/search', handler: '~/serverMiddleware/search.js' }
@@ -92,13 +86,38 @@ export default {
   env: {
     title: "polv's homepage",
     baseUrl: 'https://www.polv.cc',
-    tag: fs.readFileSync('build/tag.json', 'utf8')
+    tag: JSON.stringify(
+      sql
+        .prepare(
+          /* sql */ `
+      SELECT tag FROM [raw]
+      `
+        )
+        .all()
+        .map((r) => r.tag.split(' '))
+        .reduce((prev, c) => {
+          /**
+           * @type {string[]}
+           */
+          const ts = c
+
+          ts.map((t) => {
+            prev[t] = prev[t] || 0
+            prev[t]++
+          })
+
+          return prev
+        }, {})
+    )
   },
-  async routes() {
-    const col = await connect()
-    const r = await col
-      .find({}, { projection: { _id: 1, tag: 1, date: 1 } })
-      .toArray()
+  routes() {
+    const r = sql
+      .prepare(
+        /* sql */ `
+    SELECT slug, tag, [date] FROM [raw]
+    `
+      )
+      .all()
     const routes = ['/', '/blog']
 
     const blog = new Set()
@@ -123,8 +142,8 @@ export default {
 
     r.map((f) => {
       const p = {
-        slug: f._id,
-        date: f.date
+        slug: f.slug,
+        date: f.date ? dayjs(f.date).toDate() : undefined
       }
       blog.add(p)
       routes.push(getUrl(p))
@@ -161,15 +180,6 @@ export default {
         })
     })
 
-    await disconnect()
-
     return routes
-  },
-  hooks: {
-    generate: {
-      done() {
-        disconnect()
-      }
-    }
   }
 }
