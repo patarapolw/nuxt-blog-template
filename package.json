@@ -10,7 +10,7 @@
     "dev:nuxt": "nuxt",
     "dev:lambda": "netlify-lambda serve lambda",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
-    "build": "run-o 'build:**'",
+    "build": "run-p 'build:**'",
     "build:nuxt": "nuxt build --target static && nuxt export",
     "build:lambda": "netlify-lambda build lambda",
     "postinstall": "netlify-lambda install"
