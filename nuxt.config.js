@@ -1,7 +1,9 @@
 // @ts-check
 
+import fs from 'fs'
 import dayjs from 'dayjs'
-import { sql } from './scripts/sqlite/query'
+// @ts-ignore
+import rawJson from './build/raw.json'
 
 export default {
   mode: 'universal',
@@ -86,38 +88,9 @@ export default {
   env: {
     title: "polv's homepage",
     baseUrl: 'https://www.polv.cc',
-    tag: JSON.stringify(
-      sql
-        .prepare(
-          /* sql */ `
-      SELECT tag FROM [raw]
-      `
-        )
-        .all()
-        .map((r) => r.tag.split(' '))
-        .reduce((prev, c) => {
-          /**
-           * @type {string[]}
-           */
-          const ts = c
-
-          ts.map((t) => {
-            prev[t] = prev[t] || 0
-            prev[t]++
-          })
-
-          return prev
-        }, {})
-    )
+    tag: fs.readFileSync('./build/tag.json', 'utf-8')
   },
   routes() {
-    const r = sql
-      .prepare(
-        /* sql */ `
-    SELECT slug, tag, [date] FROM [raw]
-    `
-      )
-      .all()
     const routes = ['/', '/blog']
 
     const blog = new Set()
@@ -140,25 +113,31 @@ export default {
       return `/post/${h.slug}`
     }
 
-    r.map((f) => {
-      const p = {
-        slug: f.slug,
-        date: f.date ? dayjs(f.date).toDate() : undefined
-      }
-      blog.add(p)
-      routes.push(getUrl(p))
+    Object.entries(rawJson)
+      .map(([slug, { tag, date }]) => ({
+        slug,
+        tag,
+        date
+      }))
+      .map((f) => {
+        const p = {
+          slug: f.slug,
+          date: f.date ? dayjs(f.date).toDate() : undefined
+        }
+        blog.add(p)
+        routes.push(getUrl(p))
 
-      /**
-       * @type {string[]}
-       */
-      const ts = (f.tag || '').split(' ')
+        /**
+         * @type {string[]}
+         */
+        const ts = (f.tag || '').split(' ')
 
-      ts.map((t) => {
-        const ts = tag.get(t) || new Set()
-        ts.add(p)
-        tag.set(t, ts)
+        ts.map((t) => {
+          const ts = tag.get(t) || new Set()
+          ts.add(p)
+          tag.set(t, ts)
+        })
       })
-    })
 
     Array(Math.ceil(blog.size / 5))
       .fill(null)
