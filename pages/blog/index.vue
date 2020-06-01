@@ -13,7 +13,7 @@ import PostQuery from '@/components/PostQuery.vue'
   layout: 'blog',
   // eslint-disable-next-line require-await
   async asyncData({ app }) {
-    const ps = await app.$axios.$post('/.netlify/functions/search')
+    const ps = await app.$axios.$get('/api/search')
 
     return {
       defaults: {

@@ -81,9 +81,14 @@ export default class PostQuery extends Vue {
   }
 
   @Watch('q')
-  async onQChanged() {
-    await this.updatePosts()
-    this.page = 1
+  onQChanged() {
+    this.$router.push({
+      path: '/blog',
+      query: {
+        q: this.q
+      }
+    })
+    this.updatePosts()
   }
 }
 </script>

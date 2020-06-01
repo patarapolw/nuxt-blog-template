@@ -119,7 +119,9 @@ export default class MakeHtml {
         .map((cl) => cl.split('-')[1])[0]
       if (lang) {
         const html = $el.text() || ''
-        $el.html(hljs.highlight(lang, html).value)
+        try {
+          $el.html(hljs.highlight(lang, html).value)
+        } catch (_) {}
       }
     })
 

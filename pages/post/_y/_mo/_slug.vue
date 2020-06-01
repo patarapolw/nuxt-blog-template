@@ -15,15 +15,11 @@ import MakeHtml from '@/assets/make-html'
   layout: 'blog',
   async asyncData({ app, params }) {
     const markdown = require(`@/assets/posts/${params.slug}.md`)
-    const { title, image, tag } = (await app.$axios.$post(
-      `/.netlify/functions/post`,
-      undefined,
-      {
-        params: {
-          slug: params.slug
-        }
+    const { title, image, tag } = (await app.$axios.$get(`/api/post`, {
+      params: {
+        slug: params.slug
       }
-    ))!
+    }))!
 
     return {
       post: {

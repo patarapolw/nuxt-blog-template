@@ -26,11 +26,7 @@ export async function main(doNotDisconnect) {
 
   const ops = files
     .map((f) => {
-      const _id = f
-        .replace(/^.+\//, '')
-        .replace(/\.md/, '')
-        .toLocaleLowerCase()
-        .replace(/-/g, ' ')
+      const _id = f.replace(/^.+\//, '').replace(/\.md/, '')
       newIds.push(_id)
 
       let header = {}

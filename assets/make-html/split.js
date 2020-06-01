@@ -151,16 +151,18 @@ export function splitOp(ss) {
 
   data.map((d) => {
     // eslint-disable-next-line no-useless-escape
-    const m = /^(?<prefix>[\-+])?(?<k>[A-Z_\-]+)(?<op>[=><])(?<v>.+)$/i.exec(d)
-    if (m && m.groups) {
+    const m = /^([\-+])?([A-Z_\-]+)([=><])(.+)$/i.exec(d)
+    if (m) {
+      const [, prefix, k, op, v] = m
+
       output.push({
-        prefix: m.groups.prefix,
-        k: m.groups.k,
+        prefix,
+        k,
         /**
          * @type {any}
          */
-        op: m.groups.op,
-        v: removeBraces(m.groups.v)
+        op,
+        v: removeBraces(v)
       })
     } else {
       output.push({

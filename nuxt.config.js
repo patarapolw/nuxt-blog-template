@@ -70,6 +70,10 @@ export default {
   proxy: {
     '/.netlify/functions': 'http://localhost:9000'
   },
+  serverMiddleware: [
+    { path: '/api/post', handler: '~/serverMiddleware/post.js' },
+    { path: '/api/search', handler: '~/serverMiddleware/search.js' }
+  ],
   build: {
     /**
      *
@@ -160,5 +164,12 @@ export default {
     await disconnect()
 
     return routes
+  },
+  hooks: {
+    generate: {
+      done() {
+        disconnect()
+      }
+    }
   }
 }

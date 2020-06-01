@@ -12,7 +12,7 @@ import PostQuery from '@/components/PostQuery.vue'
   },
   layout: 'blog',
   async asyncData({ app, params }) {
-    const ps = await app.$axios.$post(`/.netlify/functions/search`, undefined, {
+    const ps = await app.$axios.$get(`/api/search`, {
       params: {
         offset: (parseInt(params.page) - 1) * 5
       }

@@ -69,10 +69,10 @@ export async function search(opts = {}) {
     const $not = []
 
     whereRaw.map(({ prefix, k, op, v }) => {
+      v = v.replace(/^$/, '')
+
       const $op = $$op[op]
-      const $cond = $op
-        ? { [k]: { [$op]: { $literal: v } } }
-        : { [k]: { $literal: v } }
+      const $cond = $op ? { [k]: { [$op]: v } } : { [k]: v }
       if (prefix === '?') {
         $or.push($cond)
       } else if (prefix === '-') {
@@ -131,7 +131,7 @@ export async function search(opts = {}) {
                 excerpt: 1
               }
             },
-            { $sort: { date: 1 } },
+            { $sort: { date: -1 } },
             { $skip: offset },
             { $limit: 5 }
           ],
@@ -143,7 +143,7 @@ export async function search(opts = {}) {
 
   return {
     result: r[0].result,
-    count: r[0].count[0].count
+    count: (r[0].count[0] || {}).count || 0
   }
 }
 
