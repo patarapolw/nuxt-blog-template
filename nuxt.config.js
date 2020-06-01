@@ -1,7 +1,7 @@
 // @ts-check
 
-import dayjs from 'dayjs'
-import { sql } from './scripts/query'
+import fs from 'fs'
+import { connect, disconnect } from './scripts/mongo/connection'
 
 export default {
   mode: 'universal',
@@ -67,20 +67,15 @@ export default {
   axios: {
     proxy: true // Can be also an object with default options
   },
-  // proxy: {
-  //   '/api/': 'http://api.example.com',
-  //   '/api2/': 'http://api.another-website.com'
-  // },
+  proxy: {
+    '/.netlify/functions': 'http://localhost:9000'
+  },
   build: {
     /**
      *
      * @param {any} config
      */
     extend(config) {
-      config.node = {
-        fs: 'empty'
-      }
-
       config.module.rules.push({
         test: /assets\/posts\/.+\.md$/,
         loader: 'raw-loader',
@@ -93,40 +88,13 @@ export default {
   env: {
     title: "polv's homepage",
     baseUrl: 'https://www.polv.cc',
-    tag: JSON.stringify(
-      // @ts-ignore
-      sql
-        .prepare(
-          /* sql */ `
-    SELECT tag FROM [raw]
-    `
-        )
-        .all()
-        .map((r) => r.tag.split(' '))
-        .reduce((prev, c) => {
-          /**
-           * @type {string[]}
-           */
-          const ts = c
-
-          ts.map((t) => {
-            prev[t] = prev[t] || 0
-            prev[t]++
-          })
-
-          return prev
-        }, {})
-    )
+    tag: fs.readFileSync('build/tag.json', 'utf8')
   },
-  routes() {
-    // @ts-ignore
-    const r = sql
-      .prepare(
-        /* sql */ `
-    SELECT slug, tag, [date] FROM [raw]
-    `
-      )
-      .all()
+  async routes() {
+    const col = await connect()
+    const r = await col
+      .find({}, { projection: { _id: 1, tag: 1, date: 1 } })
+      .toArray()
     const routes = ['/', '/blog']
 
     const blog = new Set()
@@ -151,8 +119,8 @@ export default {
 
     r.map((f) => {
       const p = {
-        slug: f.slug,
-        date: f.date ? dayjs(f.date).toDate() : undefined
+        slug: f._id,
+        date: f.date
       }
       blog.add(p)
       routes.push(getUrl(p))
@@ -188,6 +156,8 @@ export default {
           }
         })
     })
+
+    await disconnect()
 
     return routes
   }

@@ -5,7 +5,6 @@ PostFull(:post="post")
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator'
 import htmlToText from 'html-to-text'
-import { get } from '@/scripts/query'
 import PostFull from '@/components/PostFull.vue'
 import MakeHtml from '@/assets/make-html'
 
@@ -16,13 +15,15 @@ import MakeHtml from '@/assets/make-html'
   layout: 'blog',
   async asyncData({ app, params }) {
     const markdown = require(`@/assets/posts/${params.slug}.md`)
-    const { title, image, tag } =
-      get(params.slug) ||
-      (await app.$axios.$post(`/api/post`, undefined, {
+    const { title, image, tag } = (await app.$axios.$post(
+      `/.netlify/functions/post`,
+      undefined,
+      {
         params: {
           slug: params.slug
         }
-      }))!
+      }
+    ))!
 
     return {
       post: {

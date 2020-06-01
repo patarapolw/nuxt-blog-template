@@ -4,7 +4,6 @@ PostQuery(:defaults="defaults")
 
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator'
-import { search } from '@/scripts/query'
 import PostQuery from '@/components/PostQuery.vue'
 
 @Component({
@@ -14,7 +13,7 @@ import PostQuery from '@/components/PostQuery.vue'
   layout: 'blog',
   // eslint-disable-next-line require-await
   async asyncData({ app }) {
-    const ps = search() || (await app.$axios.$post('/api/search'))
+    const ps = await app.$axios.$post('/.netlify/functions/search')
 
     return {
       defaults: {

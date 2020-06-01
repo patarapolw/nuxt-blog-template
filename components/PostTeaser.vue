@@ -39,7 +39,7 @@ export default class PostTeaser extends Vue {
   }
 
   get html() {
-    return new MakeHtml(this.post.slug).render(this.post.excerpt)
+    return new MakeHtml().render(this.post.excerpt)
   }
 }
 </script>
