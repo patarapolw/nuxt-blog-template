@@ -120,7 +120,7 @@ export default class MakeHtml {
       if (lang) {
         const html = $el.text() || ''
         try {
-          $el.html(hljs.highlight(lang, html).value)
+          $el.html(hljs.highlight(lang, html, true).value)
         } catch (_) {}
       }
     })

@@ -41,7 +41,15 @@ export default {
     '~/plugins/fontawesome.js',
     '~/plugins/requestIdleCallback.client.js'
   ],
-  buildModules: ['@nuxt/typescript-build'],
+  buildModules: [
+    '@nuxt/typescript-build',
+    [
+      '@nuxtjs/google-analytics',
+      {
+        id: 'UA-168046128-1'
+      }
+    ]
+  ],
   modules: [
     // Doc: https://buefy.github.io/#/documentation
     [

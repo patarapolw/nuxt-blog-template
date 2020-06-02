@@ -5,6 +5,8 @@ hljsDefineVue(hljs)
 
 export function highlightBlock(parent: Element) {
   Array.from(parent.querySelectorAll('pre code:not(.hljs)')).forEach((el) => {
-    hljs.highlightBlock(el)
+    try {
+      hljs.highlightBlock(el)
+    } catch (_) {}
   })
 }
