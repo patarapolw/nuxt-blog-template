@@ -13,18 +13,30 @@ export default (req, res) => {
     req.originalUrl.split('?')[1] || ''
   )
 
-  idx = idx || lunr.Index.load(idxJson)
+  let allData
 
-  let allData = idx.search(q).map(({ ref }) => {
-    const data = rawJson[ref]
-    return {
-      slug: ref,
-      ...data
-    }
-  })
+  if (q) {
+    idx = idx || lunr.Index.load(idxJson)
+
+    allData = idx.search(q).map(({ ref }) => {
+      const data = rawJson[ref]
+      return {
+        slug: ref,
+        ...data
+      }
+    })
+  } else {
+    allData = Object.keys(rawJson).map((ref) => {
+      const data = rawJson[ref]
+      return {
+        slug: ref,
+        ...data
+      }
+    })
+  }
 
   if (tag) {
-    allData = allData.filter(({ tag }) => tag && tag.includes(tag))
+    allData = allData.filter((d) => d.tag && d.tag.includes(tag))
   }
 
   const count = allData.length
