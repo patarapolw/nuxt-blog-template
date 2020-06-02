@@ -29,6 +29,10 @@ export default {
         src: 'https://platform.twitter.com/widgets.js',
         async: true,
         charset: 'utf-8'
+      },
+      {
+        src: 'https://www.googletagmanager.com/gtag/js?id=UA-168046128-1',
+        async: true
       }
     ]
   },
@@ -37,19 +41,8 @@ export default {
     'highlight.js/styles/default.css',
     '@fortawesome/fontawesome-svg-core/styles.css'
   ],
-  plugins: [
-    '~/plugins/fontawesome.js',
-    '~/plugins/requestIdleCallback.client.js'
-  ],
-  buildModules: [
-    '@nuxt/typescript-build',
-    [
-      '@nuxtjs/google-analytics',
-      {
-        id: 'UA-168046128-1'
-      }
-    ]
-  ],
+  plugins: ['~/plugins/fontawesome.js', '~/plugins/g-analytics.client.js'],
+  buildModules: ['@nuxt/typescript-build'],
   modules: [
     // Doc: https://buefy.github.io/#/documentation
     [
