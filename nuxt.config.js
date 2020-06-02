@@ -33,9 +33,6 @@ export default {
       {
         src: 'https://www.googletagmanager.com/gtag/js?id=UA-168046128-1',
         async: true
-      },
-      {
-        src: '/g-analytics.client.js'
       }
     ]
   },
@@ -44,7 +41,7 @@ export default {
     'highlight.js/styles/default.css',
     '@fortawesome/fontawesome-svg-core/styles.css'
   ],
-  plugins: ['~/plugins/fontawesome.js'],
+  plugins: ['~plugins/fontawesome.js', '~plugins/ga.client.js'],
   buildModules: ['@nuxt/typescript-build'],
   modules: [
     // Doc: https://buefy.github.io/#/documentation
