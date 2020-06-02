@@ -1,4 +1,6 @@
 export default ({ app }) => {
+  if (process.env.NODE_ENV !== 'production') return
+
   window.dataLayer = window.dataLayer || []
   function gtag() {
     // eslint-disable-next-line no-undef

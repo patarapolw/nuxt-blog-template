@@ -111,7 +111,7 @@ export default {
      */
     const getUrl = (h) => {
       if (h.date) {
-        const d = new Date(h.date)
+        const d = dayjs(h.date).toDate()
         return `/post/${d.getFullYear().toString()}/${(d.getMonth() + 1)
           .toString()
           .padStart(2, '0')}/${h.slug}`
