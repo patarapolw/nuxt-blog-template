@@ -6,6 +6,7 @@ import yaml from 'js-yaml'
 import rimraf from 'rimraf'
 import * as z from 'zod'
 import lunr from 'lunr'
+import dayjs from 'dayjs'
 
 async function main() {
   await new Promise((resolve, reject) => {
@@ -38,7 +39,7 @@ async function main() {
     const p = {
       slug,
       title: header.title,
-      date: header.date,
+      date: header.date ? dayjs(header.date).toISOString() : undefined,
       image: header.image,
       tag: z
         .array(z.string())
