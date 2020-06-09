@@ -31,8 +31,10 @@ export default {
         charset: 'utf-8'
       },
       {
-        src: 'https://www.googletagmanager.com/gtag/js?id=UA-168046128-1',
-        async: true
+        src: 'https://plausible.io/js/plausible.js',
+        async: true,
+        defer: true,
+        'data-domain': 'polv.cc'
       }
     ]
   },
@@ -41,7 +43,7 @@ export default {
     'highlight.js/styles/default.css',
     '@fortawesome/fontawesome-svg-core/styles.css'
   ],
-  plugins: ['~plugins/fontawesome.js', '~plugins/ga.client.js'],
+  plugins: ['~plugins/fontawesome.js'],
   buildModules: ['@nuxt/typescript-build'],
   modules: [
     // Doc: https://buefy.github.io/#/documentation
