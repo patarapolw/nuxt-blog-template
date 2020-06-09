@@ -99,75 +99,78 @@ export default {
     baseUrl: 'https://www.polv.cc',
     tag: fs.readFileSync('./build/tag.json', 'utf-8')
   },
-  routes() {
-    const routes = ['/', '/blog']
+  generate: {
+    crawler: false,
+    routes() {
+      const routes = ['/', '/blog']
 
-    const blog = new Set()
-    const tag = new Map()
+      const blog = new Set()
+      const tag = new Map()
 
-    /**
-     *
-     * @param {object} h
-     * @param {string} h.slug
-     * @param {Date | undefined} [h.date]
-     */
-    const getUrl = (h) => {
-      if (h.date) {
-        const d = dayjs(h.date).toDate()
-        return `/post/${d.getFullYear().toString()}/${(d.getMonth() + 1)
-          .toString()
-          .padStart(2, '0')}/${h.slug}`
+      /**
+       *
+       * @param {object} h
+       * @param {string} h.slug
+       * @param {Date | undefined} [h.date]
+       */
+      const getUrl = (h) => {
+        if (h.date) {
+          const d = dayjs(h.date).toDate()
+          return `/post/${d.getFullYear().toString()}/${(d.getMonth() + 1)
+            .toString()
+            .padStart(2, '0')}/${h.slug}`
+        }
+
+        return `/post/${h.slug}`
       }
 
-      return `/post/${h.slug}`
-    }
+      Object.entries(rawJson)
+        .map(([slug, { tag, date }]) => ({
+          slug,
+          tag,
+          date
+        }))
+        .map((f) => {
+          const p = {
+            slug: f.slug,
+            date: f.date ? dayjs(f.date).toDate() : undefined
+          }
+          blog.add(p)
+          routes.push(getUrl(p))
 
-    Object.entries(rawJson)
-      .map(([slug, { tag, date }]) => ({
-        slug,
-        tag,
-        date
-      }))
-      .map((f) => {
-        const p = {
-          slug: f.slug,
-          date: f.date ? dayjs(f.date).toDate() : undefined
-        }
-        blog.add(p)
-        routes.push(getUrl(p))
+          /**
+           * @type {string[]}
+           */
+          const ts = f.tag || []
 
-        /**
-         * @type {string[]}
-         */
-        const ts = (f.tag || '').split(' ')
-
-        ts.map((t) => {
-          const ts = tag.get(t) || new Set()
-          ts.add(p)
-          tag.set(t, ts)
+          ts.map((t) => {
+            const ts = tag.get(t) || new Set()
+            ts.add(p)
+            tag.set(t, ts)
+          })
         })
-      })
 
-    Array(Math.ceil(blog.size / 5))
-      .fill(null)
-      .map((_, i) => {
-        if (i > 0) {
-          routes.push(`/blog/${i + 1}`)
-        }
-      })
-
-    Array.from(tag).map(([t, ts]) => {
-      Array(Math.ceil(ts.size / 5))
+      Array(Math.ceil(blog.size / 5))
         .fill(null)
         .map((_, i) => {
           if (i > 0) {
-            routes.push(`/tag/${t}/${i + 1}`)
-          } else {
-            routes.push(`/tag/${t}`)
+            routes.push(`/blog/${i + 1}`)
           }
         })
-    })
 
-    return routes
+      Array.from(tag).map(([t, ts]) => {
+        Array(Math.ceil(ts.size / 5))
+          .fill(null)
+          .map((_, i) => {
+            if (i > 0) {
+              routes.push(`/tag/${t}/${i + 1}`)
+            } else {
+              routes.push(`/tag/${t}`)
+            }
+          })
+      })
+
+      return routes
+    }
   }
 }
