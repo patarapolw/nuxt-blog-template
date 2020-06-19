@@ -6,7 +6,7 @@
 
 ## Environment variables
 
-You can make your contents secret using Gitlab [access token](https://docs.gitlab.com/ee/user/project/deploy_tokens/), and put them in `.env` as well as on your hosting platform (e.g. Netlify)
+You can make your contents secret using Gitlab [deploy token](https://docs.gitlab.com/ee/user/project/deploy_tokens/), and put them in `.env` as well as on your hosting platform (e.g. Netlify)
 
 ```sh
 GITLAB_TOKEN_USERNAME=
@@ -49,4 +49,4 @@ Since, this was originally made to work fine [superflat](https://github.com/pata
 
 ## Contributions
 
-Currently, code quality is held by linting and commititzen, as well as Git hooks.
+Currently, code quality is held by linting and commitizen, as well as Git hooks.
