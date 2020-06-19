@@ -15,6 +15,7 @@ import {
   faQuora
 } from '@fortawesome/free-brands-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import '@fortawesome/fontawesome-svg-core/styles.css'
 
 config.autoAddCss = false
 
@@ -31,4 +32,4 @@ library.add(
   faQuora
 )
 
-Vue.component('fa', FontAwesomeIcon)
+Vue.component('FontAwesome', FontAwesomeIcon)

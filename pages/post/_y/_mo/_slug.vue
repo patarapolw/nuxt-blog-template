@@ -1,12 +1,10 @@
-<template lang="pug">
-PostFull(:post="post")
+<template>
+  <PostFull :post="post" />
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator'
-import htmlToText from 'html-to-text'
 import PostFull from '@/components/PostFull.vue'
-import MakeHtml from '@/assets/make-html'
 
 @Component({
   components: {
@@ -14,31 +12,39 @@ import MakeHtml from '@/assets/make-html'
   },
   layout: 'blog',
   async asyncData({ app, params }) {
-    const markdown = require(`@/assets/posts/${params.slug}.md`)
-    const { title, image, tag } = (await app.$axios.$get(`/api/post`, {
-      params: {
-        slug: params.slug
+    const { title, image, tag, excerpt, contentHtml } = (await app.$axios.$get(
+      `/api/post`,
+      {
+        params: {
+          slug: params.slug
+        }
       }
-    }))!
+    ))!
 
     return {
       post: {
         title,
         image,
         tag,
-        html: new MakeHtml(params.slug).render(markdown)
+        excerpt,
+        contentHtml
       }
     }
   }
 })
 export default class PostPage extends Vue {
-  post: any = {}
+  post!: {
+    title: string
+    image?: string
+    tag?: string[]
+    excerpt: string
+    contentHtml: string
+  }
 
   head() {
-    // eslint-disable-next-line prefer-const
-    let { title = '', excerpt = '', header = {} } = this.post
-    title = `${title} - ${process.env.title}`
-    const description = htmlToText.fromString(excerpt)
+    const { title: _title, excerpt, tag, image } = this.post
+    const title = `${_title} - ${process.env.title}`
+    const description = excerpt
 
     return {
       title,
@@ -48,11 +54,15 @@ export default class PostPage extends Vue {
           name: 'description',
           content: description
         },
-        {
-          hid: 'keywords',
-          name: 'keywords',
-          content: (header.keyword || header.tag || []).join(', ')
-        },
+        ...(tag
+          ? [
+              {
+                hid: 'keywords',
+                name: 'keywords',
+                content: tag.join(',')
+              }
+            ]
+          : []),
         {
           hid: 'og:title',
           property: 'og:title',
@@ -64,11 +74,6 @@ export default class PostPage extends Vue {
           content: description
         },
         {
-          hid: 'og:image',
-          property: 'og:image',
-          content: header.image
-        },
-        {
           hid: 'twitter:title',
           property: 'twitter:title',
           content: title
@@ -78,11 +83,20 @@ export default class PostPage extends Vue {
           property: 'twitter:description',
           content: description
         },
-        {
-          hid: 'twitter:image',
-          property: 'twitter:image',
-          content: header.image
-        }
+        ...(image
+          ? [
+              {
+                hid: 'og:image',
+                property: 'og:image',
+                content: image
+              },
+              {
+                hid: 'twitter:image',
+                property: 'twitter:image',
+                content: image
+              }
+            ]
+          : [])
       ]
     }
   }

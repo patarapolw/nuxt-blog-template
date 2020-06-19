@@ -1,26 +1,36 @@
-<template lang="pug">
-.post-meta(style="margin-bottom: 0.5em;")
-  .post-meta-author
-    a(:href="author.link" style="width: 24px; min-width: 24px; margin-right: 0.5em;" :alt="author.login")
-      img(:src="author.avatar" style="border-radius: 50%;")
-    a(:href="author.link" style="margin-right: 0.5em;" :alt="author.login") {{author.login}}
-  div(style="flex-grow: 1")
-  div {{dateString}}
+<template>
+  <section class="tw-mb-4">
+    <a
+      class="el-author"
+      :href="author.url"
+      target="_blank"
+      rel="noreferrer noopener nofollow"
+    >
+      <span class="image">
+        <img class="is-rounded" :src="authorImage" :alt="author.name" />
+      </span>
+      <span>{{ author.name }}</span>
+    </a>
+
+    <div class="tw-flex-grow" />
+
+    <div>{{ dateString }}</div>
+  </section>
 </template>
 
 <script lang="ts">
 import { Vue, Component, Prop } from 'nuxt-property-decorator'
 import dayjs from 'dayjs'
+import { getGravatarUrl } from '../assets/gravatar'
 
 @Component
 export default class PostHeader extends Vue {
-  @Prop({ required: true }) post!: any
+  @Prop({ required: true, default: () => ({}) }) post!: any
 
-  author = {
-    link: 'https://polv.cc',
-    avatar:
-      'https://en.gravatar.com/userimage/35152960/7140205ee2a71cbe54d3f2ac43c0370d.jpg?size=24',
-    login: 'Pacharapol Withayasakpunt'
+  author = JSON.parse(process.env.author!)
+
+  get authorImage() {
+    return this.author.image || getGravatarUrl(this.author.email, 64)
   }
 
   get dateString() {
@@ -30,23 +40,29 @@ export default class PostHeader extends Vue {
 }
 </script>
 
-<style lang="scss">
-.post-meta {
+<style scoped>
+section:first-child {
   display: flex;
   flex-direction: row;
   white-space: nowrap;
   overflow: auto;
+}
 
-  .post-meta-author {
-    display: flex;
-    flex-direction: row;
-    white-space: nowrap;
-    justify-content: center;
+.el-author {
+  display: flex;
+  flex-direction: row;
+  white-space: nowrap;
+  justify-content: center;
+}
 
-    a {
-      border: none;
-      display: block;
-    }
-  }
+.el-author img {
+  border: none;
+  display: block;
+  width: 24px;
+  min-width: 24px;
+}
+
+.el-author span + span {
+  margin-left: 0.5rem;
 }
 </style>

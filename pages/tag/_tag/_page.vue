@@ -1,5 +1,5 @@
-<template lang="pug">
-PostQuery(:defaults="defaults")
+<template>
+  <PostQuery :defaults="defaults" />
 </template>
 
 <script lang="ts">

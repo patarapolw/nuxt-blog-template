@@ -1,25 +1,11 @@
-// @ts-check
+export interface ISplitOptions {
+  brackets: [string, string][]
+  split: string
+  escape: string
+  keepBrace?: boolean
+}
 
-/**
- * @typedef ISplitOptions
- * @property {Array<[string, string]>} brackets
- * @property {string} split
- * @property {string} escape
- * @property {boolean} [keepBrace]
- */
-
-/**
- * @typedef ISplitOpOutput
- * @property {string} [prefix]
- * @property {string} [k]
- * @property {'=' | '>' | '<'} [op]
- * @property {string} v
- */
-
-/**
- * @type {ISplitOptions}
- */
-export const defaultSplitOptions = {
+export const defaultSplitOptions: ISplitOptions = {
   brackets: [
     ['"', '"'],
     ["'", "'"]
@@ -30,12 +16,8 @@ export const defaultSplitOptions = {
 
 /**
  *
- * @param {string} ss
- * @param {object} options
- * @param {Array<[string, string]>} options.brackets
- * @param {string} options.split
- * @param {string} options.escape
- * @returns {Array<string>}
+ * @param ss
+ * @param options
  *
  * ```js
  * > split('')
@@ -46,17 +28,13 @@ export const defaultSplitOptions = {
  * ['a', 'b c', 'd e']
  * ```
  */
-export function split(ss, options = defaultSplitOptions) {
+export function split(
+  ss: string,
+  options: ISplitOptions = defaultSplitOptions
+) {
   const bracketStack = {
-    /**
-     * @type {Array<string>}
-     */
-    data: [],
-    /**
-     *
-     * @param {string} c
-     */
-    push(c) {
+    data: [] as string[],
+    push(c: string) {
       this.data.push(c)
     },
     pop() {
@@ -67,19 +45,9 @@ export function split(ss, options = defaultSplitOptions) {
     }
   }
   const tokenStack = {
-    /**
-     * @type {Array<string>}
-     */
-    data: [],
-    /**
-     * @type {Array<string>}
-     */
-    currentChars: [],
-    /**
-     *
-     * @param {string} c
-     */
-    addChar(c) {
+    data: [] as string[],
+    currentChars: [] as string[],
+    addChar(c: string) {
       this.currentChars.push(c)
     },
     flush() {
@@ -116,7 +84,7 @@ export function split(ss, options = defaultSplitOptions) {
 
       if (c === options.split && !bracketStack.peek()) {
         tokenStack.flush()
-      } else if (canAddChar) {
+      } else if (options.keepBrace || canAddChar) {
         tokenStack.addChar(c)
       }
     }
@@ -129,40 +97,38 @@ export function split(ss, options = defaultSplitOptions) {
   return tokenStack.data.map((s) => s.trim()).filter((s) => s)
 }
 
+export interface ISplitOpToken {
+  prefix?: string
+  k?: string
+  op?: string
+  v: string
+}
+
 /**
  *
- * @param {string} ss
- * @returns {Array<ISplitOpOutput>}
+ * @param ss
  *
  * ```js
  * > splitOp('a:b -c:"d e"')
  * [{"k": "a", "op": ":", "prefix": undefined, "v": "b"}, {"k": "c", "op": ":", "prefix": "-", "v": "d e"}]
  * ```
  */
-export function splitOp(ss) {
+export function splitOp(ss: string) {
   const data = split(
     ss,
     Object.assign({ keepBrace: true }, defaultSplitOptions)
   )
-  /**
-   * @type {Array<ISplitOpOutput>}
-   */
-  const output = []
+  const output: ISplitOpToken[] = []
 
   data.map((d) => {
     // eslint-disable-next-line no-useless-escape
-    const m = /^([\-+])?([A-Z_\-]+)([=><])(.+)$/i.exec(d)
-    if (m) {
-      const [, prefix, k, op, v] = m
-
+    const m = /^(?<prefix>[\-+])?(?<k>[A-Z_\-]+)(?<op>[:><])(?<v>.+)$/i.exec(d)
+    if (m && m.groups) {
       output.push({
-        prefix,
-        k,
-        /**
-         * @type {any}
-         */
-        op,
-        v: removeBraces(v)
+        prefix: m.groups.prefix,
+        k: m.groups.k,
+        op: m.groups.op,
+        v: removeBraces(m.groups.v)
       })
     } else {
       output.push({
@@ -174,12 +140,7 @@ export function splitOp(ss) {
   return output
 }
 
-/**
- *
- * @param {string} ss
- * @returns {string}
- */
-function removeBraces(ss) {
+function removeBraces(ss: string) {
   const m = /^(.)(.+)(.)$/.exec(ss)
   if (m) {
     for (const [op, cl] of defaultSplitOptions.brackets) {

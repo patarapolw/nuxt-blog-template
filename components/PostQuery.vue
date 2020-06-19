@@ -1,28 +1,32 @@
-<template lang="pug">
-section
-  section(v-if="tag" style="margin: 1em;")
-    h2.title.is-2
-      span(style="margin-right: 0.5em;") Tag:
-      span(style="font-weight: 400") {{tag}}
-  b-loading(v-if="isLoading")
-  section(v-else-if="posts.length > 0")
-    PostTeaser(v-for="p in posts" :post="p" :key="p.name")
-    b-pagination.my-lg.mx-sm(:current.sync="page" :total="count" :per-page="5"
-    icon-prev="caret-left" icon-next="caret-right" size="default" rounded)
-  div(v-else)
-    empty
+<template>
+  <section>
+    <header v-if="tag" class="tw-m-4">
+      <h1 class="title is-2">Tag: {{ tag }}</h1>
+    </header>
+
+    <article v-if="posts.length > 0">
+      <div v-for="p in posts" :key="p.slug" class="tw-mt-4">
+        <PostTeaser :post="p" />
+      </div>
+
+      <Pagination :total="pageTotal" />
+    </article>
+    <Empty v-else />
+  </section>
 </template>
 
 <script lang="ts">
 import { Vue, Component, Watch, Prop } from 'nuxt-property-decorator'
 import PostTeaser from './PostTeaser.vue'
 import Empty from './Empty.vue'
+import Pagination from './Pagination.vue'
 import { normalizeArray } from '@/assets/util'
 
 @Component({
   components: {
     PostTeaser,
-    Empty
+    Empty,
+    Pagination
   }
 })
 export default class PostQuery extends Vue {
@@ -33,27 +37,27 @@ export default class PostQuery extends Vue {
 
   count = 0
   posts: any[] = []
-  isLoading = true
+
+  isQReady = !this.q
+
+  get pageTotal() {
+    return Math.ceil(this.count / 5)
+  }
 
   get q() {
-    return normalizeArray(this.$route.query.q) || ''
-  }
+    try {
+      return normalizeArray(this.$route.query.q) || ''
+    } catch (_) {}
 
-  get page() {
-    return parseInt(this.$route.params.page || '1')
-  }
-
-  set page(p) {
-    const { path } = this.$route
-    const path0 = path.replace(/\/(\d+)?$/, '')
-    this.$router.push({
-      path: `${path0 || '/blog'}${p === 1 ? '' : `/${p}`}`,
-      query: this.$route.query
-    })
+    return ''
   }
 
   get tag() {
     return this.$route.params.tag
+  }
+
+  get page() {
+    return parseInt(this.$route.params.page || '1')
   }
 
   created() {
@@ -63,7 +67,6 @@ export default class PostQuery extends Vue {
   @Watch('page')
   @Watch('tag')
   async updatePosts() {
-    this.isLoading = true
     if (this.q) {
       const ps = await this.$axios.$post(
         '/.netlify/functions/search',
@@ -83,16 +86,19 @@ export default class PostQuery extends Vue {
       this.count = this.defaults.count
       this.$set(this, 'posts', this.defaults.posts)
     }
-    this.isLoading = false
+
+    this.isQReady = true
   }
 
   @Watch('q')
   onQChanged() {
+    const { q } = this.$route.query
+
     this.$router.push({
       path: '/blog',
-      query: this.$route.query
+      query: { q }
     })
-    this.page = 1
+
     this.updatePosts()
   }
 }
