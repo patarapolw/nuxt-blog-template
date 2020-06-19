@@ -4,8 +4,6 @@
 
 > A working version is at <https://www.polv.cc>
 
-A working-in-progress to make it suitable for sharing, as well as separate contents from design / template.
-
 ## Environment variables
 
 You can make your contents secret using Gitlab [access token](https://docs.gitlab.com/ee/user/project/deploy_tokens/), and put them in `.env` as well as on your hosting platform (e.g. Netlify)
@@ -25,7 +23,7 @@ GITLAB_REPOSITORY= # Everything after http:// in Clone with HTTPS
 
 ## `/theme.yml` structure
 
-Since it is linted with [zod](https://github.com/vriad/zod), it is best to read the schema [here](/types/theme.ts).
+Since it is linted and typed with [zod](https://github.com/vriad/zod), it is best to read the schema [here](/types/theme.ts).
 
 ## Markdown structures
 
