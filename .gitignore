@@ -92,3 +92,5 @@ sw.*
 .netlify
 /lambda-dist
 .vercel
+
+/content/

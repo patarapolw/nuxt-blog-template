@@ -80,7 +80,7 @@ export const zTheme = () =>
 // eslint-disable-next-line require-await
 export const getTheme = async () => {
   return zTheme().parse(
-    safeLoad(readFileSync(join(__dirname, '../theme.yml'), 'utf8'))
+    safeLoad(readFileSync(join(__dirname, '../content/theme.yml'), 'utf8'))
   )
 }
 

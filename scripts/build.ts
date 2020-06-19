@@ -23,7 +23,7 @@ export interface IPost {
 
 export async function buildIndexes() {
   const buildPath = (p: string) => path.join(__dirname, '../build', p)
-  const contentPath = (p: string) => path.join(__dirname, '../content', p)
+  const contentPath = (p: string) => path.join(__dirname, '../content/blog', p)
 
   await new Promise((resolve, reject) => {
     rimraf(buildPath('*.json'), (e) => (e ? reject(e) : resolve()))
