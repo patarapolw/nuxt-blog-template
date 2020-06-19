@@ -45,7 +45,7 @@ Put your excerpt here
 Put your remaining content here
 ```
 
-Since, this was originally made to work fine [superflat](https://github.com/patarapolw/superflat) flat-file CMS, you might edit there.
+Since, this was originally made to work to [superflat](https://github.com/patarapolw/superflat) flat-file CMS, you might edit there.
 
 ## Contributions
 
