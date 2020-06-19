@@ -1,11 +1,9 @@
-// @ts-check
-
 import fs from 'fs'
 import dayjs from 'dayjs'
-// @ts-ignore
+import { Configuration } from '@nuxt/types'
 import rawJson from './build/raw.json'
 
-export default {
+const nuxtConfig: Configuration = {
   mode: 'universal',
   target: 'static',
   telemetry: false,
@@ -80,19 +78,7 @@ export default {
     { path: '/api/search', handler: '~/serverMiddleware/search.js' }
   ],
   build: {
-    /**
-     *
-     * @param {any} config
-     */
-    extend(config) {
-      config.module.rules.push({
-        test: /assets\/posts\/.+\.md$/,
-        loader: 'raw-loader',
-        options: {
-          esModule: false
-        }
-      })
-    }
+    // extend(config) {}
   },
   env: {
     title: "polv's homepage",
@@ -100,6 +86,7 @@ export default {
     tag: fs.readFileSync('./build/tag.json', 'utf-8')
   },
   generate: {
+    // @ts-ignore
     crawler: false,
     routes() {
       const routes = ['/', '/blog']
@@ -107,13 +94,7 @@ export default {
       const blog = new Set()
       const tag = new Map()
 
-      /**
-       *
-       * @param {object} h
-       * @param {string} h.slug
-       * @param {Date | undefined} [h.date]
-       */
-      const getUrl = (h) => {
+      const getUrl = (h: { slug: string; date?: Date }) => {
         if (h.date) {
           const d = dayjs(h.date).toDate()
           return `/post/${d.getFullYear().toString()}/${(d.getMonth() + 1)
@@ -124,7 +105,10 @@ export default {
         return `/post/${h.slug}`
       }
 
-      Object.entries(rawJson)
+      Object.entries<{
+        tag?: string[]
+        date?: string
+      }>(rawJson)
         .map(([slug, { tag, date }]) => ({
           slug,
           tag,
@@ -138,10 +122,7 @@ export default {
           blog.add(p)
           routes.push(getUrl(p))
 
-          /**
-           * @type {string[]}
-           */
-          const ts = f.tag || []
+          const ts: string[] = f.tag || []
 
           ts.map((t) => {
             const ts = tag.get(t) || new Set()
@@ -174,3 +155,5 @@ export default {
     }
   }
 }
+
+export default nuxtConfig
