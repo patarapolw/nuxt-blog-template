@@ -1,14 +1,21 @@
-<template lang="pug">
-.card.blog-post(style="margin-bottom: 1em; margin-top: 1em;")
-  .card-content
-    PostHeader(:post="post")
-    .post-content
-      .image-teaser(v-if="post.image")
-        img(:src="post.image")
-      h2.title {{post.title}}
-      .content(v-html="html")
-    div(style="display: flex; justify-content: flex-end; color: #383838;")
-      nuxt-link.button.is-danger.is-outlined(:to="url") Read more
+<template>
+  <section class="card">
+    <article class="card-content">
+      <PostHeader :post="post" />
+
+      <div class="post-content">
+        <div v-if="post.image" class="image-teaser">
+          <img :src="post.image" :alt="post.title" />
+        </div>
+
+        <nuxt-link :to="url">
+          <h2 class="title tw-mb-6 header-link">{{ post.title }}</h2>
+        </nuxt-link>
+
+        <div class="content" v-html="post.excerptHtml" />
+      </div>
+    </article>
+  </section>
 </template>
 
 <script lang="ts">
@@ -16,7 +23,6 @@ import { Vue, Component, Prop } from 'nuxt-property-decorator'
 
 import dayjs from 'dayjs'
 import PostHeader from './PostHeader.vue'
-import MakeHtml from '@/assets/make-html'
 
 @Component({
   components: {
@@ -38,23 +44,18 @@ export default class PostTeaser extends Vue {
 
     return `/post/${h.slug}`
   }
-
-  get html() {
-    return new MakeHtml().render(this.post.excerpt)
-  }
 }
 </script>
 
-<style lang="scss">
+<style scoped>
 .content {
   width: 100%;
   margin: 0;
   max-width: 80vw;
 }
 
-.post-content {
-  width: 100%;
-  overflow: visible;
+.header-link:hover {
+  color: rgb(0, 160, 255);
 }
 
 .image-teaser {
@@ -63,6 +64,11 @@ export default class PostTeaser extends Vue {
   margin-bottom: 1rem;
   margin-left: -1.5rem;
   margin-right: -1.5rem;
+}
+
+.post-content {
+  width: 100%;
+  overflow: visible;
 }
 
 @media only screen and (min-width: 800px) {

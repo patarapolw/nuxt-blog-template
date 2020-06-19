@@ -1,23 +1,27 @@
-import HyperPug from 'hyperpug'
+import he from 'he'
+import yaml from 'js-yaml'
+import MarkdownIt from 'markdown-it'
+import mdContainer from 'markdown-it-container'
+import emoji from 'markdown-it-emoji'
+import imsize from 'markdown-it-imsize'
+import externalLinks from 'markdown-it-external-links'
+import { unescapeAll } from 'markdown-it/lib/common/utils'
+import pug from 'pug'
 import stylis from 'stylis'
 import hljs from 'highlight.js'
 import hljsDefineVue from 'highlightjs-vue'
-import MarkdownIt from 'markdown-it'
-import { unescapeAll } from 'markdown-it/lib/common/utils'
-import emoji from 'markdown-it-emoji'
-import imsize from 'markdown-it-imsize'
-import mdContainer from 'markdown-it-container'
-import he from 'he'
-import yaml from 'js-yaml'
-import cheerio from 'cheerio'
 
 import { liquid } from './template'
 
 hljsDefineVue(hljs)
 
 export default class MakeHtml {
+  static initJsDom(): () => void {
+    return require('global-jsdom')()
+  }
+
   md: MarkdownIt
-  hp: HyperPug
+  pug: (p: string) => string
 
   html = ''
 
@@ -52,6 +56,10 @@ export default class MakeHtml {
       })
       .use(emoji)
       .use(imsize)
+      .use(externalLinks, {
+        externalTarget: '_blank',
+        externalRel: 'noopener nofollow noreferrer'
+      })
       .use(mdContainer, 'spoiler', {
         validate: (params: string) => {
           return params.trim().match(/^spoiler(?:\s+(.*))?$/)
@@ -73,10 +81,13 @@ export default class MakeHtml {
         }
       })
 
-    this.hp = new HyperPug({
-      markdown: (s) => this._mdConvert(s),
-      css: (s) => this._mdConvert(s)
-    })
+    this.pug = (p: string) =>
+      pug.render(p, {
+        filters: {
+          markdown: (s: string) => this._mdConvert(s),
+          css: (s: string) => this._makeCss(s)
+        }
+      })
   }
 
   render(s: string) {
@@ -91,50 +102,30 @@ export default class MakeHtml {
     return this.html
   }
 
-  private _prerender(s: string) {
-    return liquid.parseAndRenderSync(s)
-  }
-
-  private _postrender(html: string) {
-    const $ = cheerio.load(`<div class="${this.id}">${html}</div>`)
-
-    $('iframe').each((_, el) => {
-      const $el = $(el)
-
-      const w = $el.attr('width')
-      const h = $el.attr('height')
-
-      $el.css({
-        width: w ? `${w}px` : undefined,
-        height: w ? `${h}px` : undefined
-      })
-    })
-
-    $('pre code').each((_, el) => {
-      const $el = $(el)
-
-      const lang = ($el.attr('class') || '')
-        .split(' ')
-        .filter((cl) => cl.startsWith('language-'))
-        .map((cl) => cl.split('-')[1])[0]
-      if (lang) {
-        const html = $el.text() || ''
-        try {
-          $el.html(hljs.highlight(lang, html, true).value)
-        } catch (_) {}
-      }
-    })
-
-    return `<div class="${this.id}">${$(`.${this.id}`).html()}</div>`
-  }
-
   private _pugConvert(s: string) {
-    return this.hp.parse(s)
+    return this.pug(s)
   }
 
   private _mdConvert(s: string) {
-    const html = this.md.render(s)
-    return this._postrender(this._prerender(html))
+    let html = this.md.render(s)
+    html = liquid.parseAndRenderSync(html)
+
+    const body = document.createElement('body')
+    body.innerHTML = html
+
+    body.querySelectorAll('iframe').forEach((el) => {
+      const w = el.width
+      const h = el.height
+
+      el.style.width = w ? `${w}px` : ''
+      el.style.height = h ? `${h}px` : ''
+    })
+
+    body.querySelectorAll('pre code').forEach((el) => {
+      hljs.highlightBlock(el)
+    })
+
+    return `<div class="${this.id}">${body.innerHTML}</div>`
   }
 
   private _makeCss(s: string) {

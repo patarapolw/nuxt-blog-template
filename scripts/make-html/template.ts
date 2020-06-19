@@ -52,8 +52,9 @@ liquid.registerTag('reveal', {
       ? `
     <iframe
       class="a-reveal"
-      src="${`${process.env.BASE_URL ||
-        ''}reveal.html?slug=${encodeURIComponent(this.href)}`}"
+      src="${`${process.env.baseUrl || ''}reveal.html?slug=${encodeURIComponent(
+        this.href
+      )}`}"
       sandbox frameborder="0"
     >
     </iframe>`

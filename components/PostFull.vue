@@ -1,20 +1,35 @@
-<template lang="pug">
-section
-  .blog-post
-    .card(style="margin-top: 1em; margin-bottom: 1em;")
-      .card-content.content
-        PostHeader(:post="post")
-        h1.title {{post.title}}
-        .image-full(v-if="post.image")
-          img(:src="post.image")
-        div(v-html="post.html")
-        div(style="word-break: break-word")
-          span(style="margin-right: 0.5em;") Tags:
-          span(v-for="t in post.tag || []" :key="t" style="margin-right: 0.5em;")
-            a(:href="$router.resolve('/tag/' + t).href") {{t}}
-    .card(style="margin-top: 1em; margin-bottom: 1em;")
-      .card-content
-        #remark42
+<template>
+  <section>
+    <article class="card tw-my-4">
+      <div class="card-content">
+        <PostHeader :date="post.date" />
+        <h1 class="title">{{ post.title }}</h1>
+
+        <div v-if="post.image" className="image-full">
+          <img :src="post.image" :alt="post.title" />
+        </div>
+
+        <div class="content" v-html="post.contentHtml" />
+
+        <div class="tw-break-word">
+          Tags:&nbsp;
+          <nuxt-link
+            v-for="t in post.tag || []"
+            :key="t"
+            :to="`/tag/${t}`"
+            class="tw-mr-2"
+            >{{ t }}</nuxt-link
+          >
+        </div>
+      </div>
+    </article>
+
+    <footer v-if="hasComment" class="card tw-my-4">
+      <div class="card-content">
+        <div id="remark42" />
+      </div>
+    </footer>
+  </section>
 </template>
 
 <script lang="ts">
@@ -39,6 +54,8 @@ import PostHeader from './PostHeader.vue'
 export default class PostFull extends Vue {
   @Prop({ required: true }) post!: any
 
+  hasComment = !!process.env.remark42Config
+
   get pageUrl() {
     return process.env.baseUrl + this.$route.path
   }
@@ -49,39 +66,42 @@ export default class PostFull extends Vue {
 
   @Watch('$route.path')
   onRouteChange() {
-    if (process.client) {
+    if (process.env.remark42Config && process.client) {
       // eslint-disable-next-line camelcase
       const { REMARK42 } = window as any
       if (REMARK42) {
         REMARK42.destroy()
       }
 
-      initRemark42(location.origin + location.pathname)
+      initRemark42(
+        JSON.parse(process.env.remark42Config),
+        location.origin + location.pathname
+      )
     }
   }
 }
 </script>
 
-<style lang="scss">
+<style scoped>
 .image-full {
   text-align: center;
   margin: 1rem;
+}
 
-  img {
-    min-width: 500px;
-    width: auto;
-  }
+.image-full img {
+  min-width: 500px;
+  width: auto;
 }
 
 @media only screen and (max-width: 800px) {
   .image-full {
     margin-left: -1.5rem;
     margin-right: -1.5rem;
+  }
 
-    img {
-      min-width: unset;
-      width: auto;
-    }
+  .image-full img {
+    min-width: unset;
+    width: auto;
   }
 }
 </style>

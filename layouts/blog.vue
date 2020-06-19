@@ -1,70 +1,180 @@
-<template lang="pug">
-section
-  b-navbar.navbar-shadow.noscroll.is-fixed-top(style="max-width: 100vw;")
-    template(slot="brand")
-      div(style="display: inline-flex; overflow: auto; max-width: calc(100vw - 3.25rem); flex-grow: 1")
-        b-navbar-item(tag="router-link" to="/")
-          h1.bold {{banner}}
-        div(style="flex-grow: 1")
-        page-social(v-show="$mq === 'tablet'")
-    template(slot="start")
-      b-navbar-item(v-for="t in tabs"
-        :tag="t.to ? 'router-link': 'a'"
-        :href="t.url" :to="t.to"
-        :target="t.to ? '' : '_blank'"
-        :key="t.name") {{t.name}}
-    template(slot="end")
-      page-social(v-show="$mq !== 'tablet'" :class="{'w-100': ($mq === 'mobile')}")
-      form.field(@submit.prevent="onSearch" style="margin: 0.5em; padding-left: 0.5em; padding-right: 0.5em;")
-        .control.has-icons-right
-          input.input.is-rounded(type="search" placeholder="Search" v-model="q")
-          span.icon.is-right
-            fa(icon="search")
-  section(style="margin-top: 3.25rem")
-    .container
-      .columns
-        main.column.is-6-desktop.is-offset-1-desktop
-          nuxt
-        aside.column.is-4
-          section
-            .card(style="margin-top: 1em; margin-bottom: 1em;")
-              header.card-header
-                p.card-header-title Tag cloud
-              .card-content.bn-tag-holder
-                span.bn-tag(v-for="t in tags" :key="t.name")
-                  router-link(:class="t.class" :to="'/tag/' + t.name") {{t.name}}
-            .card.my-lg
-              a.twitter-timeline(data-height="800" href="https://twitter.com/patarapolw") Tweets by patarapolw
+<template>
+  <section>
+    <nav
+      class="navbar has-shadow is-fixed-top"
+      role="navigation"
+      aria-label="main navigation"
+    >
+      <div class="navbar-brand">
+        <nuxt-link to="/" class="navbar-item">
+          <h1 class="tw-font-bold">{{ banner }}</h1>
+        </nuxt-link>
+
+        <div class="tw-flex-grow" />
+
+        <PageSocial v-if="hasSocial && $mq === 'tablet'" />
+
+        <a
+          role="button"
+          class="navbar-burger burger"
+          :class="{ 'is-active': isNavExpanded }"
+          aria-label="menu"
+          :aria-expanded="isNavExpanded"
+          tabIndex="0"
+          data-target="navbarMain"
+          @click="isNavExpanded = !isNavExpanded"
+          @keypress="isNavExpanded = !isNavExpanded"
+        >
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </a>
+      </div>
+
+      <div
+        id="navbarMain"
+        class="navbar-menu"
+        :class="{ 'is-active': isNavExpanded }"
+      >
+        <div class="navbar-start">
+          <component
+            :is="t.to ? 'nuxt-link' : 'a'"
+            v-for="t in tabs"
+            :key="t.name"
+            class="navbar-item"
+            :to="t.to"
+            :target="t.href ? '_blank' : ''"
+            :href="t.href"
+            rel="noopener nofollow noreferrer"
+          >
+            {{ t.name }}
+          </component>
+        </div>
+
+        <div class="navbar-end">
+          <PageSocial
+            v-if="hasSocial && $mq !== 'tablet'"
+            class="mobile:tw-w-full"
+          />
+
+          <form
+            class="field has-addons tw-m-2 tw-px-2"
+            @submit.prevent="$router.push(`/blog?q=${q}`)"
+          >
+            <div class="control is-expanded" role="search">
+              <input
+                v-model="q"
+                class="input is-rounded"
+                type="search"
+                placeholder="Search"
+                aria-label="search"
+              />
+            </div>
+
+            <div class="control">
+              <button
+                class="button"
+                style="border-top-right-radius: 100%; border-bottom-right-radius: 100%"
+              >
+                <span class="icon">
+                  <FontAwesome icon="search" />
+                </span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </nav>
+
+    <article style="margin-top: 3.25rem">
+      <div class="container">
+        <div class="columns">
+          <main
+            class="column"
+            :class="
+              sidebar
+                ? 'is-6-desktop is-offset-1-desktop'
+                : 'is-8-desktop is-offset-2-desktop'
+            "
+          >
+            <nuxt />
+          </main>
+
+          <aside v-if="sidebar" class="column is-4">
+            <section
+              v-if="sidebar.tagCloud && tagCloudData"
+              class="card tw-mt-4"
+            >
+              <header class="card-header">
+                <h3 class="card-header-title">Tag Cloud</h3>
+              </header>
+
+              <article
+                class="card-content tw-flex tw-flex-wrap tw-items-baseline"
+              >
+                <span
+                  v-for="t in computedTags"
+                  :key="t.name"
+                  class="tw-whitespace-no-wrap tw-mr-2"
+                >
+                  <nuxt-link :to="`/tag/${t.name}`" :class="t.class">{{
+                    t.name
+                  }}</nuxt-link>
+                </span>
+              </article>
+            </section>
+
+            <section v-if="sidebar.twitter" class="card tw-mt-4">
+              <a
+                ref="twitter"
+                class="twitter-timeline"
+                data-height="800"
+                :href="`https://twitter.com/${sidebar.twitter}`"
+              >
+                {{ `Tweets by ${sidebar.twitter}` }}
+              </a>
+            </section>
+          </aside>
+        </div>
+      </div>
+    </article>
+  </section>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'nuxt-property-decorator'
+import { ITabs, ISidebar } from '../types/theme'
 import PageSocial from '@/components/PageSocial.vue'
 import { normalizeArray } from '@/assets/util'
+import '@/assets/css/tailwind.css'
+import 'bulma/css/bulma.min.css'
+import 'highlight.js/styles/default.css'
 
 @Component({
   components: {
     PageSocial
   }
 })
-export default class Default extends Vue {
-  banner = "polv's coding blog"
-  tabs = [
-    {
-      name: 'Pinned',
-      to: '/tag/pinned'
-    }
-  ]
+export default class BlogLayout extends Vue {
+  rawData = JSON.parse(process.env.BlogLayout!)
+
+  banner: string = this.rawData.banner
+  tabs: ITabs = this.rawData.tabs || []
+  sidebar: ISidebar | null = this.rawData.sidebar || null
+  tagCloudData: Record<string, number> = this.rawData.tagCloudData
+  hasSocial: boolean = this.rawData.hasSocial
 
   q = ''
-  fullUrl = 'https://polv.cc'
+  isNavExpanded = false
 
-  get tags() {
-    const tagList = JSON.parse(process.env.tag!)
+  get fullUrl() {
+    return process.env.baseUrl!
+  }
 
-    return Object.keys(tagList)
+  get computedTags() {
+    return Object.keys(this.tagCloudData)
       .sort((a, b) => {
-        return tagList[b] - tagList[a]
+        return this.tagCloudData[b] - this.tagCloudData[a]
       })
       .slice(0, 30)
       .map((t) => {
@@ -74,7 +184,7 @@ export default class Default extends Vue {
         return {
           name: t,
           class: (() => {
-            const count = tagList[t]
+            const count = this.tagCloudData[t]
             // if (count > 20) {
             //   return 'c20'
             // } else
@@ -118,7 +228,7 @@ export default class Default extends Vue {
   mounted() {
     this.q = normalizeArray(this.$route.query.q) || ''
 
-    if (process.client) {
+    if (this.sidebar?.twitter && process.client) {
       const { twttr } = window as any
       if (twttr) {
         twttr.widgets.load()
@@ -135,50 +245,28 @@ export default class Default extends Vue {
 }
 </script>
 
-<style lang="scss">
-.navbar-shadow {
-  $n: 0.1rem;
-
-  box-shadow: 0 $n $n rgba(0, 0, 0, 0.13), $n $n $n rgba(0, 0, 0, 0.1),
-    -$n -$n $n rgba(0, 0, 0, 0.05);
+<style scoped>
+.c20 {
+  font-size: 6rem;
 }
 
-.bold {
-  font-weight: bold;
+.c10 {
+  font-size: 3rem;
 }
 
-.w-100 {
-  width: 100%;
-  margin: 0 auto;
+.c5 {
+  font-size: 1.8rem;
 }
 
-.bn-tag-holder {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
+.c3 {
+  font-size: 1.2rem;
 }
 
-.bn-tag {
-  white-space: nowrap;
-  margin-right: 10px;
-  $c-size: 0.6em;
-  .c20 {
-    font-size: 10 * $c-size;
-  }
-  .c10 {
-    font-size: 5 * $c-size;
-  }
-  .c5 {
-    font-size: 3 * $c-size;
-  }
-  .c3 {
-    font-size: 2 * $c-size;
-  }
-  .c2 {
-    font-size: 1.5 * $c-size;
-  }
-  .c1 {
-    font-size: $c-size;
-  }
+.c2 {
+  font-size: 0.9rem;
+}
+
+.c1 {
+  font-size: 0.6rem;
 }
 </style>
