@@ -52,5 +52,3 @@ Since, this was originally made to work fine [superflat](https://github.com/pata
 ## Contributions
 
 Currently, code quality is held by linting and commititzen, as well as Git hooks.
-
-Also, use `yarn commit`, rather than `git commit`.

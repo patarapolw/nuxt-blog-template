@@ -16,9 +16,7 @@
     "build": "run-p 'build:**'",
     "build:nuxt": "nuxt-ts build && nuxt-ts export",
     "build:lambda": "netlify-lambda build lambda",
-    "postinstall": "netlify-lambda install",
-    "precommit": "yarn lint && yarn build",
-    "commit": "git-cz"
+    "postinstall": "netlify-lambda install"
   },
   "dependencies": {
     "@nuxt/typescript-runtime": "^0.4.10",
@@ -96,7 +94,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn precommit",
+      "pre-commit": "yarn lint && yarn build",
       "prepare-commit-msg": "exec < /dev/tty && git cz --hook || true"
     }
   }
