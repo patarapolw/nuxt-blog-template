@@ -1,5 +1,5 @@
-import fs from 'fs'
 import path from 'path'
+import fs from 'fs-extra'
 import dayjs from 'dayjs'
 import fg from 'fast-glob'
 import yaml from 'js-yaml'
@@ -25,9 +25,18 @@ export async function buildIndexes() {
   const buildPath = (p: string) => path.join(__dirname, '../build', p)
   const contentPath = (p: string) => path.join(__dirname, '../content/blog', p)
 
-  await new Promise((resolve, reject) => {
-    rimraf(buildPath('*.json'), (e) => (e ? reject(e) : resolve()))
-  })
+  rimraf.sync(buildPath('*.json'))
+
+  try {
+    fs.unlinkSync(path.join(__dirname, '../static/media'))
+  } catch (_) {}
+
+  try {
+    fs.copySync(
+      path.join(__dirname, '../content/media'),
+      path.join(__dirname, '../static/media')
+    )
+  } catch (_) {}
 
   const files = await fg(contentPath('**/*.md'))
   const rawJson: IPost[] = []
