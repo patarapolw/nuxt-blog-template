@@ -76,10 +76,5 @@
     "tailwindcss": "^1.4.6",
     "ts-node": "^8.10.2",
     "typescript": "~3.8"
-  },
-  "engines": {
-    "node": "12.x",
-    "npm": "please-use-yarn",
-    "yarn": "1.x"
   }
 }
