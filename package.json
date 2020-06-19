@@ -17,6 +17,7 @@
     "build:nuxt": "nuxt-ts build && nuxt-ts export",
     "build:lambda": "netlify-lambda build lambda",
     "postinstall": "netlify-lambda install",
+    "precommit": "yarn lint && yarn build",
     "commit": "git-cz"
   },
   "dependencies": {
@@ -95,6 +96,7 @@
   },
   "husky": {
     "hooks": {
+      "pre-commit": "yarn precommit",
       "prepare-commit-msg": "exec < /dev/tty && git cz --hook || true"
     }
   }

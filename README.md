@@ -25,7 +25,7 @@ GITLAB_REPOSITORY= # Everything after http:// in Clone with HTTPS
 
 ## `/theme.yml` structure
 
-Since it is linted with [zod](https://github.com/vriad/zod), it is best the read the schema [here](/types/theme.ts).
+Since it is linted with [zod](https://github.com/vriad/zod), it is best to read the schema [here](/types/theme.ts).
 
 ## Markdown structures
 
@@ -48,3 +48,9 @@ Put your remaining content here
 ```
 
 Since, this was originally made to work fine [superflat](https://github.com/patarapolw/superflat) flat-file CMS, you might edit there.
+
+## Contributions
+
+Currently, code quality is held by linting and commititzen, as well as Git hooks.
+
+Also, use `yarn commit`, rather than `git commit`.
