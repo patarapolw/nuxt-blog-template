@@ -4,7 +4,7 @@
       <h1 class="title is-2">Tag: {{ tag }}</h1>
     </header>
 
-    <article v-if="posts.length > 0">
+    <article v-if="!isReady || posts.length > 0">
       <div v-for="p in posts" :key="p.slug" class="tw-mt-4">
         <PostTeaser :post="p" />
       </div>
@@ -38,7 +38,7 @@ export default class PostQuery extends Vue {
   count = 0
   posts: any[] = []
 
-  isQReady = false
+  isReady = false
 
   get pageTotal() {
     return Math.ceil(this.count / 5)
@@ -61,7 +61,6 @@ export default class PostQuery extends Vue {
   }
 
   created() {
-    this.isQReady = !this.q
     this.updatePosts()
   }
 
@@ -88,7 +87,7 @@ export default class PostQuery extends Vue {
       this.$set(this, 'posts', this.defaults.posts)
     }
 
-    this.isQReady = true
+    this.isReady = true
   }
 
   @Watch('q')
