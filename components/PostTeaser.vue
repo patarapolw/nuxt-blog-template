@@ -19,9 +19,9 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'nuxt-property-decorator'
-
 import dayjs from 'dayjs'
+import { Component, Prop, Vue } from 'nuxt-property-decorator'
+
 import PostHeader from './PostHeader.vue'
 
 @Component({

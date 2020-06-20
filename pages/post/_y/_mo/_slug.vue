@@ -3,7 +3,8 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'nuxt-property-decorator'
+import { Component, Vue } from 'nuxt-property-decorator'
+
 import PostFull from '@/components/PostFull.vue'
 
 @Component({
@@ -12,14 +13,18 @@ import PostFull from '@/components/PostFull.vue'
   },
   layout: 'blog',
   async asyncData({ app, params }) {
-    const { title, image, tag, excerpt, contentHtml } = (await app.$axios.$get(
-      `/serverMiddleware/post`,
-      {
-        params: {
-          slug: params.slug
-        }
+    const {
+      title,
+      image,
+      tag,
+      excerpt,
+      contentHtml,
+      date
+    } = (await app.$axios.$get(`/serverMiddleware/post`, {
+      params: {
+        slug: params.slug
       }
-    ))!
+    }))!
 
     return {
       post: {
@@ -27,7 +32,8 @@ import PostFull from '@/components/PostFull.vue'
         image,
         tag,
         excerpt,
-        contentHtml
+        contentHtml,
+        date
       }
     }
   }

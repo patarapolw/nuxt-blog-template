@@ -16,11 +16,13 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Watch, Prop } from 'nuxt-property-decorator'
-import PostTeaser from './PostTeaser.vue'
+import { Component, Prop, Vue, Watch } from 'nuxt-property-decorator'
+
+import { normalizeArray } from '@/assets/util'
+
 import Empty from './Empty.vue'
 import Pagination from './Pagination.vue'
-import { normalizeArray } from '@/assets/util'
+import PostTeaser from './PostTeaser.vue'
 
 @Component({
   components: {

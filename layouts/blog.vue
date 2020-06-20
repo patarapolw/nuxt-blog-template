@@ -142,10 +142,13 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'nuxt-property-decorator'
-import { ITabs, ISidebar } from '../types/theme'
-import PageSocial from '@/components/PageSocial.vue'
+import { Component, Vue } from 'nuxt-property-decorator'
+
 import { normalizeArray } from '@/assets/util'
+import PageSocial from '@/components/PageSocial.vue'
+
+import { ISidebar, ITabs } from '../types/theme'
+
 import '@/assets/css/tailwind.css'
 import 'bulma/css/bulma.min.css'
 import 'highlight.js/styles/default.css'
@@ -227,9 +230,9 @@ export default class BlogLayout extends Vue {
 
   mounted() {
     this.q = normalizeArray(this.$route.query.q) || ''
+    const { twttr } = window as any
 
-    if (this.sidebar?.twitter && process.client) {
-      const { twttr } = window as any
+    if (this.sidebar?.twitter) {
       if (twttr) {
         twttr.widgets.load()
       }

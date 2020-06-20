@@ -1,6 +1,7 @@
+import rawJson from '@/build/raw.json'
+
 import { IPost } from './build'
 import { dotPropPick } from './util'
-import rawJson from '@/build/raw.json'
 
 export const getPost = ({
   slug,

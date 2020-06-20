@@ -1,6 +1,8 @@
 import fs from 'fs'
-import dayjs from 'dayjs'
+
 import { Configuration } from '@nuxt/types'
+import dayjs from 'dayjs'
+
 import rawJson from './build/raw.json'
 import { getTheme } from './types/theme'
 
@@ -25,7 +27,7 @@ export default async () => {
           content: theme.description || ''
         }
       ],
-      link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+      link: [{ rel: 'icon', type: 'image/x-icon', href: '/media/favicon.ico' }],
       script: [
         ...(theme.sidebar?.twitter
           ? [

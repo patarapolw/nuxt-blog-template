@@ -19,13 +19,14 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop } from 'nuxt-property-decorator'
 import dayjs from 'dayjs'
+import { Component, Prop, Vue } from 'nuxt-property-decorator'
+
 import { getGravatarUrl } from '../assets/gravatar'
 
 @Component
 export default class PostHeader extends Vue {
-  @Prop({ required: true, default: () => ({}) }) post!: any
+  @Prop({ required: true }) post!: any
 
   author = JSON.parse(process.env.author!)
 
