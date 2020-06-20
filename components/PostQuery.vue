@@ -1,11 +1,11 @@
 <template>
   <section>
-    <header v-if="tag" class="tw-m-4">
+    <header v-if="tag" class="tw-mx-4 tw-mb-4">
       <h1 class="title is-2">Tag: {{ tag }}</h1>
     </header>
 
     <article v-if="!isReady || posts.length > 0">
-      <div v-for="p in posts" :key="p.slug" class="tw-mt-4">
+      <div v-for="p in posts" :key="p.slug" class="tw-mb-4">
         <PostTeaser :post="p" />
       </div>
 
@@ -67,7 +67,7 @@ export default class PostQuery extends Vue {
   @Watch('page')
   @Watch('tag')
   async updatePosts() {
-    if (this.q) {
+    if (this.q && !this.tag) {
       const ps = await this.$axios.$post(
         '/.netlify/functions/search',
         undefined,

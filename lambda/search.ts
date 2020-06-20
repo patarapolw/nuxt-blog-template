@@ -1,23 +1,25 @@
-import lunr from 'lunr'
+import lunr, { Index } from 'lunr'
+import { Handler } from 'aws-lambda'
 import idxJson from '../build/idx.json'
 import rawJson from '../build/raw.json'
 
-/**
- * @type {import('lunr').Index}
- */
-let idx
+let idx: Index
 
 // eslint-disable-next-line require-await
-export async function handler(evt) {
+export const handler: Handler = async (evt) => {
   const { q = '', tag, offset = '0' } = evt.queryStringParameters || {}
 
   idx = idx || lunr.Index.load(idxJson)
 
   let allData = idx.search(q).map(({ ref }) => {
-    const data = rawJson[ref]
+    const { date, image, title, excerptHtml, tag } = rawJson[ref]
     return {
       slug: ref,
-      ...data
+      date,
+      image,
+      title,
+      excerptHtml,
+      tag
     }
   })
 

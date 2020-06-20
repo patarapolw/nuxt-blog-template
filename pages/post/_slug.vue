@@ -13,7 +13,7 @@ import PostFull from '@/components/PostFull.vue'
   layout: 'blog',
   async asyncData({ app, params }) {
     const { title, image, tag, excerpt, contentHtml } = (await app.$axios.$get(
-      `/api/post`,
+      `/serverMiddleware/post`,
       {
         params: {
           slug: params.slug
