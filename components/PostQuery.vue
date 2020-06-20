@@ -38,7 +38,7 @@ export default class PostQuery extends Vue {
   count = 0
   posts: any[] = []
 
-  isQReady = !this.q
+  isQReady = false
 
   get pageTotal() {
     return Math.ceil(this.count / 5)
@@ -61,6 +61,7 @@ export default class PostQuery extends Vue {
   }
 
   created() {
+    this.isQReady = !this.q
     this.updatePosts()
   }
 
