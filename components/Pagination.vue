@@ -13,6 +13,10 @@
         <span class="icon">
           <FontAwesome icon="caret-left" />
         </span>
+
+        <span class="tw-sr-only">
+          Previous
+        </span>
       </nuxt-link>
 
       <nuxt-link
@@ -22,6 +26,10 @@
       >
         <span class="icon">
           <FontAwesome icon="caret-right" />
+        </span>
+
+        <span class="tw-sr-only">
+          Next
         </span>
       </nuxt-link>
 

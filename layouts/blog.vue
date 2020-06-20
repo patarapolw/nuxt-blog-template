@@ -124,16 +124,15 @@
               </article>
             </section>
 
-            <section v-if="sidebar.twitter" class="card tw-mt-4">
-              <a
-                ref="twitter"
-                class="twitter-timeline"
-                data-height="800"
-                :href="`https://twitter.com/${sidebar.twitter}`"
-              >
-                {{ `Tweets by ${sidebar.twitter}` }}
-              </a>
-            </section>
+            <client-only>
+              <section v-if="sidebar.twitter" class="card tw-mt-4">
+                <Timeline
+                  :id="sidebar.twitter"
+                  source-type="profile"
+                  :options="{ height: 800 }"
+                />
+              </section>
+            </client-only>
           </aside>
         </div>
       </div>
@@ -153,19 +152,24 @@ import '@/assets/css/tailwind.css'
 import 'bulma/css/bulma.min.css'
 import 'highlight.js/styles/default.css'
 
+const rawData = JSON.parse(process.env.BlogLayout!)
+
 @Component({
   components: {
-    PageSocial
+    PageSocial,
+    ...(rawData.sidebar?.twitter
+      ? {
+          Timeline: async () => (await import('vue-tweet-embed')).Timeline
+        }
+      : {})
   }
 })
 export default class BlogLayout extends Vue {
-  rawData = JSON.parse(process.env.BlogLayout!)
-
-  banner: string = this.rawData.banner
-  tabs: ITabs = this.rawData.tabs || []
-  sidebar: ISidebar | null = this.rawData.sidebar || null
-  tagCloudData: Record<string, number> = this.rawData.tagCloudData
-  hasSocial: boolean = this.rawData.hasSocial
+  banner: string = rawData.banner
+  tabs: ITabs = rawData.tabs || []
+  sidebar: ISidebar | null = rawData.sidebar || null
+  tagCloudData: Record<string, number> = rawData.tagCloudData
+  hasSocial: boolean = rawData.hasSocial
 
   q = ''
   isNavExpanded = false
@@ -181,7 +185,10 @@ export default class BlogLayout extends Vue {
       })
       .slice(0, 30)
       .map((t) => {
-        if (['pinned', 'dev.to'].includes(t)) {
+        if (
+          this.sidebar?.tagCloud?.excluded &&
+          this.sidebar.tagCloud.excluded.includes(t)
+        ) {
           return null
         }
         return {
@@ -230,13 +237,6 @@ export default class BlogLayout extends Vue {
 
   mounted() {
     this.q = normalizeArray(this.$route.query.q) || ''
-    const { twttr } = window as any
-
-    if (this.sidebar?.twitter) {
-      if (twttr) {
-        twttr.widgets.load()
-      }
-    }
   }
 
   onSearch() {
