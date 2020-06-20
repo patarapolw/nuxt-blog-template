@@ -1,15 +1,25 @@
+import path from 'path'
+import { URL } from 'url'
+
+import axios from 'axios'
+import fs from 'fs-extra'
 import he from 'he'
+import hljs from 'highlight.js'
+import hljsDefineVue from 'highlightjs-vue'
 import yaml from 'js-yaml'
 import MarkdownIt from 'markdown-it'
 import mdContainer from 'markdown-it-container'
 import emoji from 'markdown-it-emoji'
-import imsize from 'markdown-it-imsize'
 import externalLinks from 'markdown-it-external-links'
+import imsize from 'markdown-it-imsize'
 import { unescapeAll } from 'markdown-it/lib/common/utils'
 import pug from 'pug'
+import sanitize from 'sanitize-filename'
+import sharp from 'sharp'
+import SparkMD5 from 'spark-md5'
 import stylis from 'stylis'
-import hljs from 'highlight.js'
-import hljsDefineVue from 'highlightjs-vue'
+
+import { getTheme } from '../../types/theme'
 
 import { liquid } from './template'
 
@@ -90,7 +100,7 @@ export default class MakeHtml {
       })
   }
 
-  render(s: string) {
+  async render(s: string) {
     try {
       if (s.startsWith('---\n')) {
         s = s.substr(4).split(/---\n(.*)$/s)[1] || ''
@@ -99,19 +109,8 @@ export default class MakeHtml {
       this.html = this._mdConvert(s.replace(/<!--.*?-->/g, ''))
     } catch (e) {}
 
-    return this.html
-  }
-
-  private _pugConvert(s: string) {
-    return this.pug(s)
-  }
-
-  private _mdConvert(s: string) {
-    let html = this.md.render(s)
-    html = liquid.parseAndRenderSync(html)
-
     const body = document.createElement('body')
-    body.innerHTML = html
+    body.innerHTML = this.html
 
     body.querySelectorAll('iframe').forEach((el) => {
       const w = el.width
@@ -125,7 +124,62 @@ export default class MakeHtml {
       hljs.highlightBlock(el)
     })
 
+    const { features } = await getTheme()
+
+    if (features?.lazyload !== false) {
+      body.querySelectorAll('img, iframe').forEach((el) => {
+        el.setAttribute('loading', 'lazy')
+      })
+    }
+
+    await Promise.all(
+      Array.from(body.querySelectorAll('img')).map(async (el) => {
+        const src = el.getAttribute('src')
+        if (src && isUrl(src)) {
+          try {
+            const { data } = await axios.get(src, {
+              responseType: 'arraybuffer'
+            })
+
+            const newUrl = `media/${SparkMD5.ArrayBuffer.hash(
+              data
+            )}/${extractFilenameFromUrl(src, 'image.png', {
+              preferredExt: ['.png', '.jpg', '.jpeg', '.gif']
+            })}`
+
+            await fs.ensureFile(staticPath(newUrl))
+            await fs.writeFile(
+              staticPath(newUrl),
+              await sharp(data)
+                .resize(
+                  el.width || styleSizeToNumber(el.style.width) || 800,
+                  el.height || styleSizeToNumber(el.style.height) || null,
+                  {
+                    withoutEnlargement: true
+                  }
+                )
+                .toBuffer()
+            )
+
+            el.setAttribute('src', `/${newUrl}`)
+            el.setAttribute('data-original-src', src)
+          } catch (_) {}
+        }
+
+        return null
+      })
+    )
+
     return `<div class="${this.id}">${body.innerHTML}</div>`
+  }
+
+  private _pugConvert(s: string) {
+    return this.pug(s)
+  }
+
+  private _mdConvert(s: string) {
+    const html = this.md.render(s)
+    return liquid.parseAndRenderSync(html)
   }
 
   private _makeCss(s: string) {
@@ -138,7 +192,7 @@ export default class MakeHtml {
     const img = `
     <img style="${
       imgPos === 'left'
-        ? 'max-width: 200px; margin-right: 1em; width: 100%; height: auto;'
+        ? 'width: 100px; margin-right: 1em; height: auto;'
         : 'margin-bottom: 1em; width: 100%; height: auto;'
     }" ${
       meta
@@ -153,7 +207,7 @@ export default class MakeHtml {
       meta.image
         ? `
       <div style="${(imgPos === 'left'
-        ? 'max-width: 200px; margin-right: 1em;'
+        ? 'width: 100px; margin-right: 1em;'
         : '') +
         'display: flex; align-items: center; justify-content: center;' +
         'overflow: hidden;'}">${img}
@@ -187,3 +241,46 @@ export default class MakeHtml {
     </a>`
   }
 }
+
+function isUrl(s: string) {
+  if (/^https?:\/\/[^ ]+$/.test(s)) {
+    try {
+      // eslint-disable-next-line no-new
+      new URL(s)
+      return true
+    } catch (_) {}
+  }
+
+  return false
+}
+
+export const staticPath = (p: string) => path.join(__dirname, '../../static', p)
+
+export function extractFilenameFromUrl(
+  u: string,
+  fallback: string,
+  opts?: {
+    preferredExt?: string[]
+  }
+) {
+  try {
+    const { pathname } = new URL(u)
+    const unsafeFilename = decodeURIComponent(
+      pathname.split('/').pop() || fallback
+    )
+
+    const safeFilename = sanitize(unsafeFilename)
+    if (opts?.preferredExt && opts.preferredExt.length > 0) {
+      const ext = (safeFilename.match(/\..+?$/) || [])[0]
+      if (!ext || !opts.preferredExt.includes(ext)) {
+        return safeFilename + opts.preferredExt[0]
+      }
+    }
+
+    return safeFilename
+  } catch (_) {}
+
+  return fallback
+}
+
+const styleSizeToNumber = (s: string) => (s.endsWith('px') ? parseInt(s) : null)

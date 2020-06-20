@@ -2,7 +2,14 @@
 
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
-> A working version is at <https://www.polv.cc>
+## Features
+
+- Nuxt.js with full TypeScript (nuxt-ts)
+- Markdown-it extended with Pug and LiquidJS
+- CSS is allowed
+- Separated content and theme. Either or both can be private.
+- Searchable via lunr.js
+- Easy to deploy on Netlify
 
 ## Environment variables
 

@@ -2,7 +2,7 @@
   <section>
     <article class="card tw-mb-4">
       <div class="card-content">
-        <PostHeader :date="post.date" />
+        <PostHeader :post="post" />
         <h1 class="title">{{ post.title }}</h1>
 
         <div v-if="post.image" className="image-full">
@@ -33,9 +33,10 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component, Prop, Watch } from 'nuxt-property-decorator'
+import { Component, Prop, Vue, Watch } from 'nuxt-property-decorator'
 
 import { initRemark42 } from '../assets/remark42'
+
 import PostHeader from './PostHeader.vue'
 
 @Component({

@@ -74,6 +74,11 @@ export const zTheme = () =>
       .object({
         remark42: zRemark42().optional()
       })
+      .optional(),
+    features: z
+      .object({
+        lazyload: z.boolean().optional()
+      })
       .optional()
   })
 

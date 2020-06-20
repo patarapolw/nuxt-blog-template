@@ -94,3 +94,4 @@ sw.*
 .vercel
 
 /content/
+/static/media/

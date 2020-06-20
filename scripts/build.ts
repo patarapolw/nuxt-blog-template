@@ -1,13 +1,14 @@
 import path from 'path'
-import fs from 'fs-extra'
+
 import dayjs from 'dayjs'
 import fg from 'fast-glob'
+import fs from 'fs-extra'
 import yaml from 'js-yaml'
 import lunr from 'lunr'
 import rimraf from 'rimraf'
 import * as z from 'zod'
 
-import MakeHtml from './make-html'
+import MakeHtml, { staticPath } from './make-html'
 
 export interface IPost {
   slug: string
@@ -22,20 +23,14 @@ export interface IPost {
 }
 
 export async function buildIndexes() {
-  const buildPath = (p: string) => path.join(__dirname, '../build', p)
   const contentPath = (p: string) => path.join(__dirname, '../content/blog', p)
+  const mediaPath = (p: string) => path.join(__dirname, '../content/media', p)
+  const buildPath = (p: string) => path.join(__dirname, '../build', p)
 
   rimraf.sync(buildPath('*.json'))
 
   try {
-    fs.unlinkSync(path.join(__dirname, '../static/media'))
-  } catch (_) {}
-
-  try {
-    fs.copySync(
-      path.join(__dirname, '../content/media'),
-      path.join(__dirname, '../static/media')
-    )
+    fs.unlinkSync(staticPath(''))
   } catch (_) {}
 
   const files = await fg(contentPath('**/*.md'))
@@ -43,40 +38,44 @@ export async function buildIndexes() {
 
   const jsDomCleanup = MakeHtml.initJsDom()
 
-  files.map((f) => {
-    const slug = f.replace(/^.+\//, '').replace(/\.md/, '')
-    let header: Record<string, any> = {}
-    let markdown = fs.readFileSync(f, 'utf8')
-    let excerpt = markdown
+  await Promise.all(
+    files.map(async (f) => {
+      const slug = f.replace(/^.+\//, '').replace(/\.md/, '')
+      let header: Record<string, any> = {}
+      let markdown = fs.readFileSync(f, 'utf8')
+      let excerpt = markdown
 
-    if (markdown.startsWith('---\n')) {
-      const [h, c = ''] = markdown.substr(4).split(/---\n(.*)$/s)
-      header = yaml.safeLoad(h, {
-        schema: yaml.JSON_SCHEMA
-      })
-      excerpt = c.split(/<!-- excerpt(?:_separator)? -->/)[0]
-      markdown = c
-    }
+      if (markdown.startsWith('---\n')) {
+        const [h, c = ''] = markdown.substr(4).split(/---\n(.*)$/s)
+        header = yaml.safeLoad(h, {
+          schema: yaml.JSON_SCHEMA
+        })
+        excerpt = c.split(/<!-- excerpt(?:_separator)? -->/)[0]
+        markdown = c
+      }
 
-    const p: IPost = {
-      slug,
-      title: z.string().parse(header.title),
-      date: header.date ? dayjs(header.date).toISOString() : undefined,
-      image: z
-        .string()
-        .optional()
-        .parse(header.image),
-      tag: z
-        .array(z.string())
-        .parse(header.tag || [])
-        .map((t) => t.toLocaleLowerCase().replace(/ /g, '-')),
-      excerpt,
-      excerptHtml: new MakeHtml(slug).render(excerpt),
-      contentHtml: new MakeHtml(slug).render(markdown)
-    }
+      const makeHtml = new MakeHtml(slug)
 
-    rawJson.push(p)
-  })
+      const p: IPost = {
+        slug,
+        title: z.string().parse(header.title),
+        date: header.date ? dayjs(header.date).toISOString() : undefined,
+        image: z
+          .string()
+          .optional()
+          .parse(header.image),
+        tag: z
+          .array(z.string())
+          .parse(header.tag || [])
+          .map((t) => t.toLocaleLowerCase().replace(/ /g, '-')),
+        excerpt,
+        excerptHtml: await makeHtml.render(excerpt),
+        contentHtml: await makeHtml.render(markdown)
+      }
+
+      rawJson.push(p)
+    })
+  )
 
   jsDomCleanup()
 
@@ -115,6 +114,14 @@ export async function buildIndexes() {
       }, {} as Record<string, number>)
     )
   )
+  ;(
+    await fg('**/*.*', {
+      cwd: mediaPath('')
+    })
+  ).map((f) => {
+    fs.ensureFileSync(staticPath(`media/${f}`))
+    fs.copyFileSync(mediaPath(f), staticPath(`media/${f}`))
+  })
 }
 
 if (require.main === module) {

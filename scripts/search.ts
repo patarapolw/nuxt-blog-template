@@ -2,10 +2,11 @@ import dayjs from 'dayjs'
 import lunr, { Index } from 'lunr'
 import * as z from 'zod'
 
-import { IPost } from './build'
-import { dotPropPick } from './util'
 import idxJson from '@/build/idx.json'
 import rawJson from '@/build/raw.json'
+
+import { IPost } from './build'
+import { dotPropPick } from './util'
 
 let idx: Index
 
