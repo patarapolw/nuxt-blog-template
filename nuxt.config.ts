@@ -29,15 +29,6 @@ export default async () => {
       ],
       link: [{ rel: 'icon', type: 'image/x-icon', href: '/media/favicon.ico' }],
       script: [
-        ...(theme.sidebar?.twitter
-          ? [
-              {
-                src: 'https://platform.twitter.com/widgets.js',
-                async: true,
-                charset: 'utf-8'
-              }
-            ]
-          : []),
         ...(theme.analytics?.plausible
           ? [
               {

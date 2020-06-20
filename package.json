@@ -89,7 +89,8 @@
     "stylis": "^3.5.4",
     "tailwindcss": "^1.4.6",
     "ts-node": "^8.10.2",
-    "typescript": "~3.8"
+    "typescript": "~3.8",
+    "vue-tweet-embed": "^2.4.0"
   },
   "engines": {
     "node": "12.x",
