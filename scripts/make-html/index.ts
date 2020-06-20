@@ -54,6 +54,8 @@ export default class MakeHtml {
 
           if (info === 'pug parsed') {
             return this._pugConvert(content)
+          } else if (info === 'css parsed') {
+            return `<style>${content}</style>`
           } else if (info === 'yaml link') {
             return this._makeLink(yaml.safeLoad(content))
           }
