@@ -1,15 +1,15 @@
 <template>
   <section>
-    <header v-if="tag" class="tw-m-4">
+    <header v-if="tag" class="tw-mx-4 tw-mb-4">
       <h1 class="title is-2">Tag: {{ tag }}</h1>
     </header>
 
-    <article v-if="posts.length > 0">
-      <div v-for="p in posts" :key="p.slug" class="tw-mt-4">
+    <article v-if="!isReady || posts.length > 0">
+      <div v-for="p in posts" :key="p.slug" class="tw-mb-4">
         <PostTeaser :post="p" />
       </div>
 
-      <Pagination :total="pageTotal" />
+      <Pagination v-if="pageTotal > 1" :total="pageTotal" />
     </article>
     <Empty v-else />
   </section>
@@ -38,7 +38,7 @@ export default class PostQuery extends Vue {
   count = 0
   posts: any[] = []
 
-  isQReady = !this.q
+  isReady = false
 
   get pageTotal() {
     return Math.ceil(this.count / 5)
@@ -67,7 +67,7 @@ export default class PostQuery extends Vue {
   @Watch('page')
   @Watch('tag')
   async updatePosts() {
-    if (this.q) {
+    if (this.q && !this.tag) {
       const ps = await this.$axios.$post(
         '/.netlify/functions/search',
         undefined,
@@ -87,7 +87,7 @@ export default class PostQuery extends Vue {
       this.$set(this, 'posts', this.defaults.posts)
     }
 
-    this.isQReady = true
+    this.isReady = true
   }
 
   @Watch('q')

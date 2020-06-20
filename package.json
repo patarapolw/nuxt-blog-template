@@ -6,8 +6,8 @@
   "private": true,
   "scripts": {
     "preinstall": "node -e \"if(process.env.npm_execpath.indexOf('yarn') === -1) throw new Error('You must use Yarn to install, not NPM')\"",
-    "deep-clone-content": "git clone git@github.com:$GITLAB_REPOSITORY content",
-    "shallow-clone-content": "git clone https://$GITLAB_TOKEN_USERNAME:$GITLAB_TOKEN_PASSWORD@$GITLAB_REPOSITORY content --depth 1 || true",
+    "deep-clone-content": "git clone git@gitlab.com:$GITLAB_REPOSITORY.git content",
+    "shallow-clone-content": "git clone https://$GITLAB_TOKEN_USERNAME:$GITLAB_TOKEN_PASSWORD@gitlab.com/$GITLAB_REPOSITORY.git content --depth 1 || true",
     "generate-db": "ts-node -O '{\"module\":\"commonjs\",\"noImplicitAny\":false}' scripts/build.ts",
     "dev": "run-p 'dev:**'",
     "dev:nuxt": "nuxt-ts",
@@ -39,6 +39,7 @@
     "@nuxt/typescript-build": "^0.6.0",
     "@nuxtjs/eslint-config-typescript": "^1.0.0",
     "@nuxtjs/eslint-module": "^1.0.0",
+    "@types/aws-lambda": "^8.10.56",
     "@types/fs-extra": "^9.0.1",
     "@types/he": "^1.1.1",
     "@types/highlight.js": "^9.12.4",

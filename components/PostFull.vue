@@ -1,6 +1,6 @@
 <template>
   <section>
-    <article class="card tw-my-4">
+    <article class="card tw-mb-4">
       <div class="card-content">
         <PostHeader :date="post.date" />
         <h1 class="title">{{ post.title }}</h1>

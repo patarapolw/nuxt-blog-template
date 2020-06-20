@@ -86,11 +86,11 @@
       </div>
     </nav>
 
-    <article style="margin-top: 3.25rem">
+    <article class="tw-mt-16">
       <div class="container">
         <div class="columns">
           <main
-            class="column"
+            class="column tw-mt-4"
             :class="
               sidebar
                 ? 'is-6-desktop is-offset-1-desktop'

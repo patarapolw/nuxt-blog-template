@@ -1,24 +1,26 @@
 import qs from 'querystring'
-import lunr from 'lunr'
+import { ServerMiddleware } from '@nuxt/types'
+import lunr, { Index } from 'lunr'
 import idxJson from '../build/idx.json'
 import rawJson from '../build/raw.json'
+import { normalizeArray } from '../assets/util'
 
-/**
- * @type {import('lunr').Index}
- */
-let idx
+let idx: Index
 
-export default (req, res) => {
-  const { q = '', tag, offset = '0' } = qs.parse(
-    req.originalUrl.split('?')[1] || ''
-  )
+const router: ServerMiddleware = (req, res, next) => {
+  if (!req.originalUrl) {
+    next(new Error('no req.originalUrl'))
+    return
+  }
+
+  const { q, tag, offset } = qs.parse(req.originalUrl.split('?')[1] || '')
 
   let allData
 
   if (q) {
     idx = idx || lunr.Index.load(idxJson)
 
-    allData = idx.search(q).map(({ ref }) => {
+    allData = idx.search(normalizeArray(q) || '').map(({ ref }) => {
       const data = rawJson[ref]
       return {
         slug: ref,
@@ -44,7 +46,10 @@ export default (req, res) => {
     .sort(({ date: a }, { date: b }) => {
       return a ? (b ? b.localeCompare(a) : a) : b
     })
-    .slice(parseInt(offset), parseInt(offset) + 5)
+    .slice(
+      parseInt(normalizeArray(offset) || '0'),
+      parseInt(normalizeArray(offset) || '0') + 5
+    )
 
   res.end(
     JSON.stringify({
@@ -53,3 +58,5 @@ export default (req, res) => {
     })
   )
 }
+
+export default router
