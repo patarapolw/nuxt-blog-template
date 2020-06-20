@@ -11,6 +11,15 @@
 - Searchable via lunr.js
 - Easy to deploy on Netlify
 
+## Initialization
+
+- There are two ways, forking, and using [upstream](https://github.com/patarapolw/nuxt-blog-template/wiki/Contributing-to-the-template)
+- Don't forget to add your contents to `/content/`
+
+```sh
+git clone <GITLAB_CONTENT_URL> content
+```
+
 ## Environment variables
 
 You can make your contents secret using Gitlab [deploy token](https://docs.gitlab.com/ee/user/project/deploy_tokens/), and put them in `.env` as well as on your hosting platform (e.g. Netlify)
@@ -60,6 +69,7 @@ You'll have to generate the database first.
 
 ```sh
 yarn
+yarn deep-clone-content
 yarn generate-db
 yarn dev
 ```
