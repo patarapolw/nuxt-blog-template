@@ -9,7 +9,7 @@
         <PostTeaser :post="p" />
       </div>
 
-      <Pagination :total="pageTotal" />
+      <Pagination v-if="pageTotal > 1" :total="pageTotal" />
     </article>
     <Empty v-else />
   </section>
