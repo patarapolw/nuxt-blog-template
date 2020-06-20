@@ -18,8 +18,9 @@ module.exports = {
     'import/named': 0,
     'no-unused-vars': 0,
     'vue/no-v-html': 0,
-    'sort-imports': 'off',
-    'import/order': 'off',
+    'require-await': 0,
+    'sort-imports': 0,
+    'import/order': 0,
     'simple-import-sort/sort': [
       'error',
       {

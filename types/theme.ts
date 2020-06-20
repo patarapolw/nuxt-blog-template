@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs'
 import { join } from 'path'
+
 import { safeLoad } from 'js-yaml'
 import * as z from 'zod'
 
@@ -82,7 +83,6 @@ export const zTheme = () =>
       .optional()
   })
 
-// eslint-disable-next-line require-await
 export const getTheme = async () => {
   return zTheme().parse(
     safeLoad(readFileSync(join(__dirname, '../content/theme.yml'), 'utf8'))

@@ -8,7 +8,7 @@ import lunr from 'lunr'
 import rimraf from 'rimraf'
 import * as z from 'zod'
 
-import MakeHtml, { staticPath } from './make-html'
+import MakeHtml, { localizeImage, staticPath } from './make-html'
 
 export interface IPost {
   slug: string
@@ -30,7 +30,7 @@ export async function buildIndexes() {
   rimraf.sync(buildPath('*.json'))
 
   try {
-    fs.unlinkSync(staticPath(''))
+    fs.unlinkSync(staticPath('media'))
   } catch (_) {}
 
   const files = await fg(contentPath('**/*.md'))
@@ -40,7 +40,7 @@ export async function buildIndexes() {
 
   await Promise.all(
     files.map(async (f) => {
-      const slug = f.replace(/^.+\//, '').replace(/\.md/, '')
+      const slug = f.replace(/^.+\//, '').replace(/\.mdx?$/, '')
       let header: Record<string, any> = {}
       let markdown = fs.readFileSync(f, 'utf8')
       let excerpt = markdown
@@ -55,19 +55,28 @@ export async function buildIndexes() {
       }
 
       const makeHtml = new MakeHtml(slug)
+      const { title, date, image: unlocalizedImage, tag } = (() => {
+        const { title, date, image, tag } = header
+        return z
+          .object({
+            title: z.string(),
+            date: z.string().optional(),
+            image: z.string().optional(),
+            tag: z.array(z.string()).optional()
+          })
+          .parse({ title, date, image, tag })
+      })()
+
+      const image = unlocalizedImage
+        ? await localizeImage(unlocalizedImage)
+        : null
 
       const p: IPost = {
         slug,
-        title: z.string().parse(header.title),
-        date: header.date ? dayjs(header.date).toISOString() : undefined,
-        image: z
-          .string()
-          .optional()
-          .parse(header.image),
-        tag: z
-          .array(z.string())
-          .parse(header.tag || [])
-          .map((t) => t.toLocaleLowerCase().replace(/ /g, '-')),
+        title,
+        date: date ? dayjs(date).toISOString() : undefined,
+        image: image || undefined,
+        tag: (tag || []).map((t) => t.toLocaleLowerCase().replace(/ /g, '-')),
         excerpt,
         excerptHtml: await makeHtml.render(excerpt),
         contentHtml: await makeHtml.render(markdown)

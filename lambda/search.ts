@@ -1,11 +1,11 @@
-import lunr, { Index } from 'lunr'
 import { Handler } from 'aws-lambda'
+import lunr, { Index } from 'lunr'
+
 import idxJson from '../build/idx.json'
 import rawJson from '../build/raw.json'
 
 let idx: Index
 
-// eslint-disable-next-line require-await
 export const handler: Handler = async (evt) => {
   const { q = '', tag, offset = '0' } = evt.queryStringParameters || {}
 

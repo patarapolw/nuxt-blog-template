@@ -124,6 +124,12 @@ export default class MakeHtml {
       hljs.highlightBlock(el)
     })
 
+    await Promise.all(
+      Array.from(body.querySelectorAll('img')).map(async (el) => {
+        return localizeImage(el)
+      })
+    )
+
     const { features } = await getTheme()
 
     if (features?.lazyload !== false) {
@@ -131,44 +137,6 @@ export default class MakeHtml {
         el.setAttribute('loading', 'lazy')
       })
     }
-
-    await Promise.all(
-      Array.from(body.querySelectorAll('img')).map(async (el) => {
-        const src = el.getAttribute('src')
-        if (src && isUrl(src)) {
-          try {
-            const { data } = await axios.get(src, {
-              responseType: 'arraybuffer'
-            })
-
-            const newUrl = `media/${SparkMD5.ArrayBuffer.hash(
-              data
-            )}/${extractFilenameFromUrl(src, 'image.png', {
-              preferredExt: ['.png', '.jpg', '.jpeg', '.gif']
-            })}`
-
-            await fs.ensureFile(staticPath(newUrl))
-            await fs.writeFile(
-              staticPath(newUrl),
-              await sharp(data)
-                .resize(
-                  el.width || styleSizeToNumber(el.style.width) || 800,
-                  el.height || styleSizeToNumber(el.style.height) || null,
-                  {
-                    withoutEnlargement: true
-                  }
-                )
-                .toBuffer()
-            )
-
-            el.setAttribute('src', `/${newUrl}`)
-            el.setAttribute('data-original-src', src)
-          } catch (_) {}
-        }
-
-        return null
-      })
-    )
 
     return `<div class="${this.id}">${body.innerHTML}</div>`
   }
@@ -284,3 +252,52 @@ export function extractFilenameFromUrl(
 }
 
 const styleSizeToNumber = (s: string) => (s.endsWith('px') ? parseInt(s) : null)
+
+export async function localizeImage(im: HTMLImageElement | string) {
+  let src = ''
+  let el: HTMLImageElement | null = null
+  if (typeof im === 'string') {
+    src = im
+  } else {
+    el = im
+    src = im.getAttribute('src') || ''
+  }
+
+  if (src && isUrl(src)) {
+    try {
+      const { data } = await axios.get(src, {
+        responseType: 'arraybuffer'
+      })
+
+      const newUrl = `media/${SparkMD5.ArrayBuffer.hash(
+        data
+      )}/${extractFilenameFromUrl(src, 'image.webp', {
+        preferredExt: ['.webp']
+      })}`
+
+      await fs.ensureFile(staticPath(newUrl))
+      await fs.writeFile(
+        staticPath(newUrl),
+        await sharp(data)
+          .resize(
+            (el ? el.width || styleSizeToNumber(el.style.width) : null) || 800,
+            el ? el.height || styleSizeToNumber(el.style.height) : null,
+            {
+              withoutEnlargement: true
+            }
+          )
+          .toFormat('webp', { quality: 80 })
+          .toBuffer()
+      )
+
+      if (el) {
+        el.setAttribute('src', `/${newUrl}`)
+        el.setAttribute('data-original-src', src)
+      }
+
+      return newUrl
+    } catch (_) {}
+  }
+
+  return null
+}
