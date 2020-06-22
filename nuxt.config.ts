@@ -43,7 +43,10 @@ export default async () => {
     },
     loading: { color: '#fff' },
     css: [],
-    plugins: ['~plugins/fontawesome.ts'],
+    plugins: [
+      '~plugins/fontawesome.ts',
+      ...(theme.comments?.remark42 ? ['~plugins/remark42.client.js'] : [])
+    ],
     buildModules: ['@nuxt/typescript-build'],
     modules: [
       [
@@ -76,7 +79,6 @@ export default async () => {
       postcss: {
         plugins: [require('tailwindcss')]
       }
-      // extend(config) {}
     },
     env: {
       title: theme.title,

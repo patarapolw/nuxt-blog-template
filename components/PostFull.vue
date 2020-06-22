@@ -26,7 +26,7 @@
 
     <footer v-if="hasComment" class="card tw-my-4">
       <div class="card-content">
-        <div id="remark42" />
+        <div ref="remark42" />
       </div>
     </footer>
   </section>
@@ -35,7 +35,7 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'nuxt-property-decorator'
 
-import { initRemark42 } from '../assets/remark42'
+import '~/assets/remark42'
 
 import PostHeader from './PostHeader.vue'
 
@@ -45,9 +45,8 @@ import PostHeader from './PostHeader.vue'
   },
   beforeRouteLeave() {
     if (process.client) {
-      const { REMARK42 } = window as any
-      if (REMARK42) {
-        REMARK42.destroy()
+      if (window.REMARK42 && window.REMARK42.destroy) {
+        window.REMARK42.destroy()
       }
     }
   }
@@ -67,17 +66,22 @@ export default class PostFull extends Vue {
 
   @Watch('$route.path')
   onRouteChange() {
-    if (process.env.remark42Config && process.client) {
-      // eslint-disable-next-line camelcase
-      const { REMARK42 } = window as any
-      if (REMARK42) {
-        REMARK42.destroy()
-      }
+    if (process.client && process.env.remark42Config) {
+      if (window.REMARK42) {
+        if (window.REMARK42.destroy) {
+          window.REMARK42.destroy()
+        }
 
-      initRemark42(
-        JSON.parse(process.env.remark42Config),
-        location.origin + location.pathname
-      )
+        const config: import('@/types/theme').IRemark42 = JSON.parse(
+          process.env.remark42Config
+        )
+
+        window.REMARK42.createInstance({
+          node: this.$refs.remark42 as HTMLElement,
+          host: config.host,
+          site_id: config.siteId
+        })
+      }
     }
   }
 }
