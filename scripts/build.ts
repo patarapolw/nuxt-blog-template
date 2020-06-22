@@ -75,7 +75,7 @@ export async function buildIndexes() {
         slug,
         title,
         date: date ? dayjs(date).toISOString() : undefined,
-        image: image || undefined,
+        image: image ? `/${image}` : undefined,
         tag: (tag || []).map((t) => t.toLocaleLowerCase().replace(/ /g, '-')),
         excerpt,
         excerptHtml: await makeHtml.render(excerpt),
