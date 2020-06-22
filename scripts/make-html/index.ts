@@ -55,7 +55,7 @@ export default class MakeHtml {
           if (info === 'pug parsed') {
             return this._pugConvert(content)
           } else if (info === 'css parsed') {
-            return this._makeCss(content)
+            return `<style>${content}</style>`
           } else if (info === 'yaml link') {
             return this._makeLink(yaml.safeLoad(content))
           }
@@ -94,8 +94,7 @@ export default class MakeHtml {
     this.pug = (p: string) =>
       pug.render(p, {
         filters: {
-          markdown: (s: string) => this._mdConvert(s),
-          css: (s: string) => this._makeCss(s)
+          markdown: (s: string) => this._mdConvert(s)
         }
       })
   }
@@ -111,6 +110,10 @@ export default class MakeHtml {
 
     const body = document.createElement('body')
     body.innerHTML = this.html
+
+    body.querySelectorAll('style').forEach((el) => {
+      el.innerHTML = stylis(`.${this.id}`, el.innerHTML)
+    })
 
     body.querySelectorAll('iframe').forEach((el) => {
       const w = el.width
@@ -148,10 +151,6 @@ export default class MakeHtml {
   private _mdConvert(s: string) {
     const html = this.md.render(s)
     return liquid.parseAndRenderSync(html)
-  }
-
-  private _makeCss(s: string) {
-    return `<style>${stylis(`.${this.id}`, s.replace(/\s+/gs, ' '))}</style>`
   }
 
   private _makeLink(meta: any) {

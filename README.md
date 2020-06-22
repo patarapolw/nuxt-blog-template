@@ -7,6 +7,7 @@
 - Nuxt.js with full TypeScript (nuxt-ts)
 - Markdown-it extended with Pug and LiquidJS
 - CSS is allowed
+- Images in markdown are optimized as WebP format
 - Separated content and theme. Either or both can be private.
 - Searchable via lunr.js
 - Easy to deploy on Netlify

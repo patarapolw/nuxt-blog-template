@@ -4,7 +4,8 @@ module.exports = {
     content: [
       './components/**/*.{js,jsx,ts,tsx,vue}',
       './layouts/**/*.{js,jsx,ts,tsx,vue}',
-      './pages/**/*.{js,jsx,ts,tsx,vue}'
+      './pages/**/*.{js,jsx,ts,tsx,vue}',
+      './build/**/*.json'
     ]
   },
   theme: {
