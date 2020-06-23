@@ -1,7 +1,9 @@
 import qs from 'querystring'
+
 import { ServerMiddleware } from '@nuxt/types'
-import rawJson from '../build/raw.json'
+
 import { normalizeArray } from '../assets/util'
+import rawJson from '../build/raw.json'
 
 const router: ServerMiddleware = (req, res, next) => {
   if (!req.originalUrl) {
@@ -9,21 +11,16 @@ const router: ServerMiddleware = (req, res, next) => {
     return
   }
 
-  const { slug: _slug } = qs.parse(req.originalUrl.split('?')[1] || '')
-  const slug = normalizeArray(_slug)
+  const { path: _path } = qs.parse(req.originalUrl.split('?')[1] || '')
+  const path = normalizeArray(_path)
 
-  if (!slug) {
+  if (!path) {
     next(new Error('slug must be provided'))
     return
   }
 
-  const r = rawJson[slug] || {}
-  res.end(
-    JSON.stringify({
-      slug,
-      ...r
-    })
-  )
+  const r = rawJson[path] || {}
+  res.end(JSON.stringify(r))
 }
 
 export default router

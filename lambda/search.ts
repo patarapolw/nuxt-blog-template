@@ -12,9 +12,9 @@ export const handler: Handler = async (evt) => {
   idx = idx || lunr.Index.load(idxJson)
 
   let allData = idx.search(q).map(({ ref }) => {
-    const { date, image, title, excerptHtml, tag } = rawJson[ref]
+    const { date, image, title, excerptHtml, tag, path } = rawJson[ref]
     return {
-      slug: ref,
+      path,
       date,
       image,
       title,

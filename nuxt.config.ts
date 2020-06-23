@@ -103,29 +103,22 @@ export default async () => {
         const blog = new Set()
         const tag = new Map()
 
-        const getUrl = (h: { slug: string; date?: Date }) => {
-          if (h.date) {
-            const d = dayjs(h.date).toDate()
-            return `/post/${d.getFullYear().toString()}/${(d.getMonth() + 1)
-              .toString()
-              .padStart(2, '0')}/${h.slug}`
-          }
-
-          return `/post/${h.slug}`
+        const getUrl = ({ path }: { path: string }) => {
+          return `/post/${path}`
         }
 
         Object.entries<{
           tag?: string[]
           date?: string
         }>(rawJson)
-          .map(([slug, { tag, date }]) => ({
-            slug,
+          .map(([path, { tag, date }]) => ({
+            path,
             tag,
             date
           }))
           .map((f) => {
             const p = {
-              slug: f.slug,
+              path: f.path,
               date: f.date ? dayjs(f.date).toDate() : undefined
             }
             blog.add(p)

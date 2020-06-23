@@ -12,29 +12,33 @@ import PostFull from '@/components/PostFull.vue'
     PostFull
   },
   layout: 'blog',
-  async asyncData({ app, params }) {
-    const {
-      title,
-      image,
-      tag,
-      excerpt,
-      contentHtml,
-      date
-    } = (await app.$axios.$get(`/serverMiddleware/post`, {
-      params: {
-        slug: params.slug
-      }
-    }))!
-
-    return {
-      post: {
+  async asyncData({ app, params, error }) {
+    try {
+      const {
         title,
         image,
         tag,
         excerpt,
         contentHtml,
         date
+      } = (await app.$axios.$get(`/serverMiddleware/post`, {
+        params: {
+          path: params.pathMatch
+        }
+      }))!
+
+      return {
+        post: {
+          title,
+          image,
+          tag,
+          excerpt,
+          contentHtml,
+          date
+        }
       }
+    } catch (_) {
+      error({ statusCode: 404, message: 'Post not found' })
     }
   }
 })

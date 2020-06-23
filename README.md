@@ -34,7 +34,8 @@ GITLAB_REPOSITORY= # <ORG>/<REPO_NAME>
 ## Gitlab folder structure
 
 ```sh
-/blog/**/*.md # Any deep nesting is possible
+/post/**/*.md
+/media/
 /theme.yml
 ```
 
@@ -62,7 +63,7 @@ Put your excerpt here
 Put your remaining content here
 ```
 
-Since, this was originally made to work to [superflat](https://github.com/patarapolw/superflat) flat-file CMS, you might edit there.
+You might edit contents with [patarapolw/make-html](https://github.com/patarapolw/make-html) -- <https://make-html.netlify.app>.
 
 ## Running in development
 

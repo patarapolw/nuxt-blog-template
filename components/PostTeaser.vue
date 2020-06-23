@@ -19,7 +19,6 @@
 </template>
 
 <script lang="ts">
-import dayjs from 'dayjs'
 import { Component, Prop, Vue } from 'nuxt-property-decorator'
 
 import PostHeader from './PostHeader.vue'
@@ -34,15 +33,7 @@ export default class PostTeaser extends Vue {
 
   get url() {
     const h = this.post
-
-    if (h.date) {
-      const d = dayjs(h.date).toDate()
-      return `/post/${d.getFullYear().toString()}/${(d.getMonth() + 1)
-        .toString()
-        .padStart(2, '0')}/${h.slug}`
-    }
-
-    return `/post/${h.slug}`
+    return `/post/${h.path}`
   }
 }
 </script>

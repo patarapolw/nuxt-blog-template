@@ -1,5 +1,7 @@
 import path from 'path'
 
+import { MakeHtml } from '@patarapolw/make-html-frontend-functions'
+import { CacheMedia } from '@patarapolw/make-html-functions'
 import dayjs from 'dayjs'
 import fg from 'fast-glob'
 import fs from 'fs-extra'
@@ -8,11 +10,9 @@ import lunr from 'lunr'
 import rimraf from 'rimraf'
 import * as z from 'zod'
 
-import MakeHtml, { localizeImage, staticPath } from './make-html'
-
 export interface IPost {
   slug: string
-  // path: string
+  path: string
   title: string
   image?: string
   tag?: string[]
@@ -23,38 +23,43 @@ export interface IPost {
 }
 
 export async function buildIndexes() {
-  const contentPath = (p: string) => path.join(__dirname, '../content/blog', p)
-  const mediaPath = (p: string) => path.join(__dirname, '../content/media', p)
-  const buildPath = (p: string) => path.join(__dirname, '../build', p)
+  const srcPostPath = (...ps: string[]) =>
+    path.join(__dirname, '../content/post', ...ps)
+  const srcMediaPath = (...ps: string[]) =>
+    path.join(__dirname, '../content/media', ...ps)
+
+  const buildPath = (...ps: string[]) => path.join(__dirname, '../build', ...ps)
+
+  const dstMediaPath = (...ps: string[]) =>
+    path.join(__dirname, '../static/media', ...ps)
 
   rimraf.sync(buildPath('*.json'))
+  rimraf.sync(dstMediaPath('**/*'))
 
-  try {
-    fs.unlinkSync(staticPath('media'))
-  } catch (_) {}
-
-  const files = await fg(contentPath('**/*.md'))
+  const files = await fg('**/*.md', {
+    cwd: srcPostPath()
+  })
   const rawJson: IPost[] = []
 
-  const jsDomCleanup = MakeHtml.initJsDom()
+  const jsDomCleanup = require('global-jsdom')()
 
   await Promise.all(
     files.map(async (f) => {
       const slug = f.replace(/^.+\//, '').replace(/\.mdx?$/, '')
       let header: Record<string, any> = {}
-      let markdown = fs.readFileSync(f, 'utf8')
-      let excerpt = markdown
+      let markdown = fs.readFileSync(srcPostPath(f), 'utf8')
 
       if (markdown.startsWith('---\n')) {
         const [h, c = ''] = markdown.substr(4).split(/---\n(.*)$/s)
         header = yaml.safeLoad(h, {
           schema: yaml.JSON_SCHEMA
         })
-        excerpt = c.split(/<!-- excerpt(?:_separator)? -->/)[0]
         markdown = c
       }
 
       const makeHtml = new MakeHtml(slug)
+      const cacheMedia = new CacheMedia(dstMediaPath())
+
       const { title, date, image: unlocalizedImage, tag } = (() => {
         const { title, date, image, tag } = header
         return z
@@ -68,18 +73,26 @@ export async function buildIndexes() {
       })()
 
       const image = unlocalizedImage
-        ? await localizeImage(unlocalizedImage)
+        ? await cacheMedia.localizeImage(unlocalizedImage)
         : null
 
+      const contentHtml = await cacheMedia.parse(makeHtml.render(markdown))
+
+      const excerpt = markdown.split(/<!-- excerpt(?:_separator)? -->/)[0]
+      const excerptHtml = contentHtml.split(
+        /<!-- excerpt(?:_separator)? -->/
+      )[0]
+
       const p: IPost = {
+        path: f.replace(/\.mdx?$/, ''),
         slug,
         title,
         date: date ? dayjs(date).toISOString() : undefined,
-        image: image ? `/${image}` : undefined,
+        image: image ? `/media/${image}` : undefined,
         tag: (tag || []).map((t) => t.toLocaleLowerCase().replace(/ /g, '-')),
         excerpt,
-        excerptHtml: await makeHtml.render(excerpt),
-        contentHtml: await makeHtml.render(markdown)
+        excerptHtml,
+        contentHtml
       }
 
       rawJson.push(p)
@@ -91,14 +104,18 @@ export async function buildIndexes() {
   fs.writeFileSync(
     buildPath('raw.json'),
     JSON.stringify(
-      rawJson.reduce((prev, { slug, ...p }) => ({ ...prev, [slug]: p }), {})
+      rawJson.reduce(
+        (prev, { path, ...p }) => ({ ...prev, [path]: { path, ...p } }),
+        {}
+      )
     )
   )
   fs.writeFileSync(
     buildPath('idx.json'),
     JSON.stringify(
       lunr(function() {
-        this.ref('slug')
+        this.ref('path')
+        this.field('slug', { boost: 5 })
         this.field('title', { boost: 5 })
         this.field('tag', { boost: 5 })
         this.field('excerpt')
@@ -125,11 +142,11 @@ export async function buildIndexes() {
   )
   ;(
     await fg('**/*.*', {
-      cwd: mediaPath('')
+      cwd: srcMediaPath()
     })
   ).map((f) => {
-    fs.ensureFileSync(staticPath(`media/${f}`))
-    fs.copyFileSync(mediaPath(f), staticPath(`media/${f}`))
+    fs.ensureFileSync(dstMediaPath(f))
+    fs.copyFileSync(srcMediaPath(f), dstMediaPath(f))
   })
 }
 

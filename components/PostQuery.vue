@@ -5,7 +5,7 @@
     </header>
 
     <article v-if="!isReady || posts.length > 0">
-      <div v-for="p in posts" :key="p.slug" class="tw-mb-4">
+      <div v-for="p in posts" :key="p.path" class="tw-mb-4">
         <PostTeaser :post="p" />
       </div>
 
