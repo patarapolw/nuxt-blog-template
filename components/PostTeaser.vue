@@ -19,7 +19,6 @@
 </template>
 
 <script lang="ts">
-import dayjs from 'dayjs'
 import { Component, Prop, Vue } from 'nuxt-property-decorator'
 
 import PostHeader from './PostHeader.vue'
@@ -34,15 +33,7 @@ export default class PostTeaser extends Vue {
 
   get url() {
     const h = this.post
-
-    if (h.date) {
-      const d = dayjs(h.date).toDate()
-      return `/post/${d.getFullYear().toString()}/${(d.getMonth() + 1)
-        .toString()
-        .padStart(2, '0')}/${h.slug}`
-    }
-
-    return `/post/${h.slug}`
+    return `/post/${h.path}`
   }
 }
 </script>
@@ -66,6 +57,10 @@ export default class PostTeaser extends Vue {
   margin-right: -1.5rem;
 }
 
+.image-teaser img {
+  width: 100%;
+}
+
 .post-content {
   width: 100%;
   overflow: visible;
@@ -77,11 +72,9 @@ export default class PostTeaser extends Vue {
     max-width: 300px;
     max-height: 300px;
     float: right;
-    margin: 1rem;
-  }
-
-  .post-content {
-    overflow: auto;
+    margin-left: 1rem;
+    margin-right: 0;
+    margin-top: 0;
   }
 }
 </style>

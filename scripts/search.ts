@@ -25,20 +25,10 @@ export const doSearch = (props: z.infer<typeof zProps>) => {
     idx = idx || lunr.Index.load(idxJson)
 
     allData = idx.search(q).map(({ ref }) => {
-      const data = (rawJson as any)[ref]
-      return {
-        slug: ref,
-        ...data
-      }
+      return rawJson[ref]
     })
   } else {
-    allData = Object.keys(rawJson).map((ref) => {
-      const data = (rawJson as any)[ref]
-      return {
-        slug: ref,
-        ...data
-      }
-    })
+    allData = Object.values(rawJson)
   }
 
   if (tag) {

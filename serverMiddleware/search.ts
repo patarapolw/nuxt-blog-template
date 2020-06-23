@@ -1,9 +1,11 @@
 import qs from 'querystring'
+
 import { ServerMiddleware } from '@nuxt/types'
 import lunr, { Index } from 'lunr'
+
+import { normalizeArray } from '../assets/util'
 import idxJson from '../build/idx.json'
 import rawJson from '../build/raw.json'
-import { normalizeArray } from '../assets/util'
 
 let idx: Index
 
@@ -21,20 +23,10 @@ const router: ServerMiddleware = (req, res, next) => {
     idx = idx || lunr.Index.load(idxJson)
 
     allData = idx.search(normalizeArray(q) || '').map(({ ref }) => {
-      const data = rawJson[ref]
-      return {
-        slug: ref,
-        ...data
-      }
+      return rawJson[ref]
     })
   } else {
-    allData = Object.keys(rawJson).map((ref) => {
-      const data = rawJson[ref]
-      return {
-        slug: ref,
-        ...data
-      }
-    })
+    allData = Object.values(rawJson)
   }
 
   if (tag) {

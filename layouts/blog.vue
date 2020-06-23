@@ -181,7 +181,11 @@ export default class BlogLayout extends Vue {
   get computedTags() {
     return Object.keys(this.tagCloudData)
       .sort((a, b) => {
-        return this.tagCloudData[b] - this.tagCloudData[a]
+        const primary = this.tagCloudData[b] - this.tagCloudData[a]
+        if (primary) {
+          return primary
+        }
+        return a.localeCompare(b)
       })
       .slice(0, 30)
       .map((t) => {

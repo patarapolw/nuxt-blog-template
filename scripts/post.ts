@@ -4,13 +4,13 @@ import { IPost } from './build'
 import { dotPropPick } from './util'
 
 export const getPost = ({
-  slug,
+  path,
   select
 }: {
-  slug: string
+  path: string
   select: string[]
 }) => {
-  const el = rawJson[slug] as IPost
+  const el = rawJson[path] as IPost
   if (!el) {
     throw new Error('content not found')
   }
