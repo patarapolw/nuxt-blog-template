@@ -1,5 +1,3 @@
-import path from 'path'
-
 import { MakeHtml } from '@patarapolw/make-html-frontend-functions'
 import { CacheMedia } from '@patarapolw/make-html-functions'
 import dayjs from 'dayjs'
@@ -7,8 +5,10 @@ import fg from 'fast-glob'
 import fs from 'fs-extra'
 import yaml from 'js-yaml'
 import lunr from 'lunr'
-import rimraf from 'rimraf'
 import * as z from 'zod'
+
+import { clean } from './clean'
+import { buildPath, dstMediaPath, srcMediaPath, srcPostPath } from './util'
 
 export interface IPost {
   slug: string
@@ -23,18 +23,7 @@ export interface IPost {
 }
 
 export async function buildIndexes() {
-  const srcPostPath = (...ps: string[]) =>
-    path.join(__dirname, '../content/post', ...ps)
-  const srcMediaPath = (...ps: string[]) =>
-    path.join(__dirname, '../content/media', ...ps)
-
-  const buildPath = (...ps: string[]) => path.join(__dirname, '../build', ...ps)
-
-  const dstMediaPath = (...ps: string[]) =>
-    path.join(__dirname, '../static/media', ...ps)
-
-  rimraf.sync(buildPath('*.json'))
-  rimraf.sync(dstMediaPath('**/*'))
+  clean()
 
   const files = await fg('**/*.md', {
     cwd: srcPostPath()
