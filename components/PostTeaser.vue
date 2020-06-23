@@ -57,6 +57,10 @@ export default class PostTeaser extends Vue {
   margin-right: -1.5rem;
 }
 
+.image-teaser img {
+  width: 100%;
+}
+
 .post-content {
   width: 100%;
   overflow: visible;
@@ -68,11 +72,9 @@ export default class PostTeaser extends Vue {
     max-width: 300px;
     max-height: 300px;
     float: right;
-    margin: 1rem;
-  }
-
-  .post-content {
-    overflow: auto;
+    margin-left: 1rem;
+    margin-right: 0;
+    margin-top: 0;
   }
 }
 </style>

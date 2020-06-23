@@ -3,11 +3,12 @@
     <article class="card tw-mb-4">
       <div class="card-content">
         <PostHeader :post="post" />
-        <h1 class="title">{{ post.title }}</h1>
 
-        <div v-if="post.image" className="image-full">
-          <img :src="post.image" :alt="post.title" />
+        <div v-if="post.image" class="tw--mx-6 tw-mb-4">
+          <img class="tw-w-full" :src="post.image" :alt="post.title" />
         </div>
+
+        <h1 class="title">{{ post.title }}</h1>
 
         <div class="content" v-html="post.contentHtml" />
 
@@ -86,27 +87,3 @@ export default class PostFull extends Vue {
   }
 }
 </script>
-
-<style scoped>
-.image-full {
-  text-align: center;
-  margin: 1rem;
-}
-
-.image-full img {
-  min-width: 500px;
-  width: auto;
-}
-
-@media only screen and (max-width: 800px) {
-  .image-full {
-    margin-left: -1.5rem;
-    margin-right: -1.5rem;
-  }
-
-  .image-full img {
-    min-width: unset;
-    width: auto;
-  }
-}
-</style>
