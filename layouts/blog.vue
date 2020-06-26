@@ -148,9 +148,10 @@ import PageSocial from '@/components/PageSocial.vue'
 
 import { ISidebar, ITabs } from '../types/theme'
 
-import '@/assets/css/tailwind.css'
 import 'bulma/css/bulma.min.css'
 import 'highlight.js/styles/default.css'
+import '@/assets/css/tailwind.css'
+import '@/assets/css/hljs-fix.css'
 
 const rawData = JSON.parse(process.env.BlogLayout!)
 
