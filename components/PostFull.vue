@@ -62,27 +62,35 @@ export default class PostFull extends Vue {
   }
 
   mounted() {
-    this.onRouteChange()
+    if (window.REMARK42) {
+      this.initRemark42()
+    } else {
+      window.addEventListener('REMARK42::ready', () => {
+        this.initRemark42()
+      })
+    }
   }
 
   @Watch('$route.path')
   onRouteChange() {
-    if (process.client && process.env.remark42Config) {
-      if (window.REMARK42) {
-        if (window.REMARK42.destroy) {
-          window.REMARK42.destroy()
-        }
+    this.initRemark42()
+  }
 
-        const config: import('@/types/theme').IRemark42 = JSON.parse(
-          process.env.remark42Config
-        )
-
-        window.REMARK42.createInstance({
-          node: this.$refs.remark42 as HTMLElement,
-          host: config.host,
-          site_id: config.siteId
-        })
+  initRemark42() {
+    if (process.client && process.env.remark42Config && window.REMARK42) {
+      if (window.REMARK42.destroy) {
+        window.REMARK42.destroy()
       }
+
+      const config: import('@/types/theme').IRemark42 = JSON.parse(
+        process.env.remark42Config
+      )
+
+      window.REMARK42.createInstance({
+        node: this.$refs.remark42 as HTMLElement,
+        host: config.host,
+        site_id: config.siteId
+      })
     }
   }
 }
