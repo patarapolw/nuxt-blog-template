@@ -13,7 +13,7 @@
         <div class="content" v-html="post.contentHtml" />
 
         <div class="tw-break-word">
-          Tags:&nbsp;
+          <span class="tw-mr-2">Tags:</span>
           <nuxt-link
             v-for="t in post.tag || []"
             :key="t"
@@ -43,19 +43,13 @@ import PostHeader from './PostHeader.vue'
 @Component({
   components: {
     PostHeader
-  },
-  beforeRouteLeave() {
-    if (process.client) {
-      if (window.REMARK42 && window.REMARK42.destroy) {
-        window.REMARK42.destroy()
-      }
-    }
   }
 })
 export default class PostFull extends Vue {
   @Prop({ required: true }) post!: any
 
   hasComment = !!process.env.remark42Config
+  remark42Instance: any = null
 
   get pageUrl() {
     return process.env.baseUrl + this.$route.path
@@ -71,6 +65,18 @@ export default class PostFull extends Vue {
     }
   }
 
+  beforeDestroy() {
+    if (this.remark42Instance) {
+      this.remark42Instance.destroy()
+    }
+  }
+
+  beforeRouteLeave() {
+    if (this.remark42Instance) {
+      this.remark42Instance.destroy()
+    }
+  }
+
   @Watch('$route.path')
   onRouteChange() {
     this.initRemark42()
@@ -78,15 +84,15 @@ export default class PostFull extends Vue {
 
   initRemark42() {
     if (process.client && process.env.remark42Config && window.REMARK42) {
-      if (window.REMARK42.destroy) {
-        window.REMARK42.destroy()
+      if (this.remark42Instance) {
+        this.remark42Instance.destroy()
       }
 
       const config: import('@/types/theme').IRemark42 = JSON.parse(
         process.env.remark42Config
       )
 
-      window.REMARK42.createInstance({
+      this.remark42Instance = window.REMARK42.createInstance({
         node: this.$refs.remark42 as HTMLElement,
         host: config.host,
         site_id: config.siteId
