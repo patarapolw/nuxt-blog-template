@@ -64,7 +64,6 @@
     "fast-glob": "^3.2.2",
     "fs-extra": "^9.0.1",
     "global-jsdom": "^6.1.0",
-    "husky": "^4.2.5",
     "js-yaml": "^3.14.0",
     "jsdom": "^16.2.2",
     "npm-run-all": "^4.1.5",
@@ -88,12 +87,6 @@
   "config": {
     "commitizen": {
       "path": "emoji-cz"
-    }
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "yarn lint && yarn build",
-      "prepare-commit-msg": "exec < /dev/tty && git cz --hook || true"
     }
   }
 }
