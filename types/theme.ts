@@ -4,6 +4,8 @@ import { join } from 'path'
 import { safeLoad } from 'js-yaml'
 import * as z from 'zod'
 
+import { CONTENT_PATH } from '../scripts/dir'
+
 export const zRemark42 = () =>
   z.object({
     host: z.string(),
@@ -85,7 +87,7 @@ export const zTheme = () =>
 
 export const getTheme = async () => {
   return zTheme().parse(
-    safeLoad(readFileSync(join(__dirname, '../content/theme.yml'), 'utf8'))
+    safeLoad(readFileSync(join(CONTENT_PATH, 'theme.yml'), 'utf8'))
   )
 }
 

@@ -1,6 +1,6 @@
 import rimraf from 'rimraf'
 
-import { buildPath, dstMediaPath } from './util'
+import { buildPath, dstMediaPath } from './dir'
 
 export function clean() {
   rimraf.sync(buildPath('*.json'))

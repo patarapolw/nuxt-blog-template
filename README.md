@@ -15,23 +15,13 @@
 ## Initialization
 
 - There are two ways, forking, and using [upstream](https://github.com/patarapolw/nuxt-blog-template/wiki/Contributing-to-the-template)
-- Don't forget to add your contents to `/content/`
+- Add your contents to `/content/`, or `process.env.CONTENT_PATH`
 
 ```sh
-git clone <GITLAB_CONTENT_URL> content
+CONTENT_PATH=<PATH_TO_YOUR_CONTENT>
 ```
 
-## Environment variables
-
-You can make your contents secret using Gitlab [deploy token](https://docs.gitlab.com/ee/user/project/deploy_tokens/), and put them in `.env` as well as on your hosting platform (e.g. Netlify)
-
-```sh
-GITLAB_TOKEN_USERNAME=
-GITLAB_TOKEN_PASSWORD=
-GITLAB_REPOSITORY= # <ORG>/<REPO_NAME>
-```
-
-## Gitlab folder structure
+## `content` folder structure
 
 ```sh
 /post/**/*.md
@@ -71,7 +61,6 @@ You'll have to generate the database first.
 
 ```sh
 yarn
-yarn deep-clone-content
 yarn generate-db
 yarn dev
 ```

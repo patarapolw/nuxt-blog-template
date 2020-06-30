@@ -6,8 +6,6 @@
   "private": true,
   "scripts": {
     "preinstall": "node -e \"if(process.env.npm_execpath.indexOf('yarn') === -1) throw new Error('You must use Yarn to install, not NPM')\"",
-    "deep-clone-content": "git clone git@gitlab.com:$GITLAB_REPOSITORY.git content",
-    "shallow-clone-content": "git clone https://$GITLAB_TOKEN_USERNAME:$GITLAB_TOKEN_PASSWORD@gitlab.com/$GITLAB_REPOSITORY.git content --depth 1 || true",
     "generate-db": "ts-node -O '{\"module\":\"commonjs\",\"noImplicitAny\":false}' scripts/build.ts",
     "dev": "run-p 'dev:**'",
     "dev:nuxt": "nuxt-ts",
@@ -16,11 +14,11 @@
     "clean": "run-p 'clean:**'",
     "clean:content": "rimraf content",
     "clean:db": "ts-node -O '{\"module\":\"commonjs\",\"noImplicitAny\":false}' scripts/clean.ts",
-    "prebuild": "yarn shallow-clone-content && yarn generate-db",
     "build": "run-p 'build:**'",
     "build:nuxt": "nuxt-ts build && nuxt-ts export",
     "build:lambda": "netlify-lambda build lambda",
-    "postinstall": "netlify-lambda install"
+    "postinstall": "netlify-lambda install",
+    "deploy": "netlify deploy --dir dist --functions lambda-dist"
   },
   "dependencies": {
     "@nuxt/typescript-runtime": "^0.4.10",
@@ -28,6 +26,7 @@
     "@patarapolw/make-html-frontend-functions": "^1.0.0-pre13",
     "@patarapolw/make-html-functions": "^1.0.0-pre8",
     "dayjs": "^1.8.28",
+    "dotenv": "^8.2.0",
     "lunr": "^2.3.8",
     "netlify-lambda": "^1.6.3",
     "nuxt": "^2.13.0",

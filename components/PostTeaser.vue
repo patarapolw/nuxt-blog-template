@@ -45,6 +45,10 @@ export default class PostTeaser extends Vue {
   max-width: 80vw;
 }
 
+.card-content {
+  overflow: hidden;
+}
+
 .header-link:hover {
   color: rgb(0, 160, 255);
 }

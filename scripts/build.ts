@@ -8,7 +8,7 @@ import lunr from 'lunr'
 import * as z from 'zod'
 
 import { clean } from './clean'
-import { buildPath, dstMediaPath, srcMediaPath, srcPostPath } from './util'
+import { buildPath, dstMediaPath, srcMediaPath, srcPostPath } from './dir'
 
 export interface IPost {
   slug: string
