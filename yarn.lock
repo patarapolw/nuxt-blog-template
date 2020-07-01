@@ -1357,10 +1357,10 @@
   resolved "https://registry.yarnpkg.com/@patarapolw/highlightjs-vue/-/highlightjs-vue-1.0.0-dev4.tgz#938c2cb037e2129601c0d9644eb5262eacde2013"
   integrity sha512-p1LgqMO/uwk99u8PZ5AZPs/ITGa3qJzfjuEiof3IB5qEaguRW/0oLw88WC3l2V9BlaYjfDUmHEtiL2TZqW82pQ==
 
-"@patarapolw/make-html-frontend-functions@^1.0.0-pre13":
-  version "1.0.0-pre13"
-  resolved "https://registry.yarnpkg.com/@patarapolw/make-html-frontend-functions/-/make-html-frontend-functions-1.0.0-pre13.tgz#ff417af302c5935dc0b0cb9774fe98ac266c9728"
-  integrity sha512-Kn+A0rdoznAWSTl/DN3liSUDk15hNyCbhU4agiMvKWe/18HuAXzmYxvpvWStT1cJ6Lklu5+n1y+SwKNcZVl8MQ==
+"@patarapolw/make-html-frontend-functions@^1.0.0-pre14":
+  version "1.0.0-pre14"
+  resolved "https://registry.yarnpkg.com/@patarapolw/make-html-frontend-functions/-/make-html-frontend-functions-1.0.0-pre14.tgz#0d6f132e611986c4be21062779820122d385ef31"
+  integrity sha512-e6CR3GawGKlmgzGzz7rGOzWvZq98Z1mo4FRkoRT8RfpYuEjMuvz1m1YNGPiFX02xsQBsNU2xdTT5gke0wXNUmg==
   dependencies:
     "@patarapolw/highlightjs-vue" "^1.0.0-dev4"
     "@patarapolw/markdown-it-imsize" "^2.0.1-dev3"
@@ -1376,10 +1376,10 @@
     stylis "3"
     vhtml "^2.2.0"
 
-"@patarapolw/make-html-functions@^1.0.0-pre8":
-  version "1.0.0-pre8"
-  resolved "https://registry.yarnpkg.com/@patarapolw/make-html-functions/-/make-html-functions-1.0.0-pre8.tgz#c791c58ac8745cc0edc9b073eced5da59511103d"
-  integrity sha512-t9JUynMlG66aSwkRlWMxVlbAnQfMavDZLtsplmoLPx+hpTt51MLG46xW3sHinvAUH//aMTxS+Q9A5D9jeDCJoA==
+"@patarapolw/make-html-functions@^1.0.0-pre9":
+  version "1.0.0-pre9"
+  resolved "https://registry.yarnpkg.com/@patarapolw/make-html-functions/-/make-html-functions-1.0.0-pre9.tgz#652bb3df238a0b86cfbb84f319f8beaa99a2abd5"
+  integrity sha512-PVpEz4OEw9eygYKirYQBH20Sse3iIZExZejDUSoEIT+YU6vCtTUD3AFgW8gk+PPKycPxAEBzBMmQgPXgMY4vZQ==
   dependencies:
     axios "^0.19.2"
     cheerio "^1.0.0-rc.3"

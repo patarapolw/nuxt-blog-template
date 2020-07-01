@@ -23,8 +23,8 @@
   "dependencies": {
     "@nuxt/typescript-runtime": "^0.4.10",
     "@nuxtjs/axios": "^5.10.3",
-    "@patarapolw/make-html-frontend-functions": "^1.0.0-pre13",
-    "@patarapolw/make-html-functions": "^1.0.0-pre8",
+    "@patarapolw/make-html-frontend-functions": "^1.0.0-pre14",
+    "@patarapolw/make-html-functions": "^1.0.0-pre9",
     "dayjs": "^1.8.28",
     "dotenv": "^8.2.0",
     "lunr": "^2.3.8",
