@@ -1,5 +1,5 @@
-import { MakeHtml } from '@patarapolw/make-html-frontend-functions'
 import { CacheMedia } from '@patarapolw/make-html-functions'
+import { MakeHtml } from '@patarapolw/make-html-functions/lib/frontend'
 import dayjs from 'dayjs'
 import fg from 'fast-glob'
 import fs from 'fs-extra'
@@ -29,8 +29,6 @@ export async function buildIndexes() {
     cwd: srcPostPath()
   })
   const rawJson: IPost[] = []
-
-  const jsDomCleanup = require('global-jsdom')()
 
   await Promise.all(
     files.map(async (f) => {
@@ -87,8 +85,6 @@ export async function buildIndexes() {
       rawJson.push(p)
     })
   )
-
-  jsDomCleanup()
 
   fs.writeFileSync(
     buildPath('raw.json'),
