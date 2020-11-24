@@ -26,7 +26,7 @@
     "@patarapolw/make-html-functions": "^1.0.0-pre10",
     "dayjs": "^1.8.28",
     "dotenv": "^8.2.0",
-    "highlight.js": "^10.1.1",
+    "highlight.js": "^10.1.2",
     "lunr": "^2.3.8",
     "netlify-lambda": "^1.6.3",
     "nuxt": "^2.13.0",
